@@ -1,5 +1,7 @@
 import Grid from "./Grid";
+// @ts-ignore
 import {ResetGrid, Simulate, Step} from "../wailsjs/go/main/App";
+import {main} from "../wailsjs/go/models";
 
 
 function App() {
@@ -9,7 +11,7 @@ function App() {
     return (
         <div>
             <button className="btn" onClick={() => {
-                Simulate().then(res => {
+                Simulate().then((res: main.Grid) => {
                     //TODO rerender grid
                     console.log("Resolved simulate")
                 })
@@ -17,7 +19,7 @@ function App() {
                 Simulate
             </button>
             <button className="btn" onClick={() => {
-                Step().then(res => {
+                Step().then((res: main.Grid) => {
                     //TODO rerender grid
                     console.log("resolved step")
                 })
@@ -25,7 +27,7 @@ function App() {
                 Step
             </button>
             <button className="btn" onClick={() => {
-                ResetGrid().then((res) => {
+                ResetGrid().then((res: main.Grid) => {
                     //TODO rerender grid
                     console.log("resolved reset")
                 })

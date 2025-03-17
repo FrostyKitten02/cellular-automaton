@@ -12,6 +12,10 @@ type App struct {
 type Cell struct {
 }
 
+type Grid struct {
+	Cells [][]Cell `json:"Cells"`
+}
+
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{}
@@ -23,14 +27,18 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-func (a *App) Step() [][]Cell {
-	return [][]Cell{}
+func (a *App) Step() Grid {
+	return Grid{}
 }
 
-func (a *App) Simulate() [][]Cell {
-	return [][]Cell{}
+func (a *App) Simulate() Grid {
+	return Grid{}
 }
 
-func (a *App) ResetGrid() [][]Cell {
-	return [][]Cell{}
+func (a *App) ResetGrid() Grid {
+	return Grid{}
+}
+
+func (a *App) TestFunc(c Cell) {
+
 }
