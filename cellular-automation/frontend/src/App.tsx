@@ -11,6 +11,7 @@ function App() {
             <button className="btn" onClick={() => {
                 Simulate().then(res => {
                     //TODO rerender grid
+                    console.log("Resolved simulate")
                 })
             }}>
                 Simulate
@@ -18,6 +19,7 @@ function App() {
             <button className="btn" onClick={() => {
                 Step().then(res => {
                     //TODO rerender grid
+                    console.log("resolved step")
                 })
             }}>
                 Step
@@ -25,6 +27,7 @@ function App() {
             <button className="btn" onClick={() => {
                 ResetGrid().then((res) => {
                     //TODO rerender grid
+                    console.log("resolved reset")
                 })
             }}>
                 Reset
