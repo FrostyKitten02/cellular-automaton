@@ -9,6 +9,9 @@ type App struct {
 	ctx context.Context
 }
 
+type Cell struct {
+}
+
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{}
@@ -18,4 +21,16 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+}
+
+func (a *App) Step() [][]Cell {
+	return [][]Cell{}
+}
+
+func (a *App) Simulate() [][]Cell {
+	return [][]Cell{}
+}
+
+func (a *App) ResetGrid() [][]Cell {
+	return [][]Cell{}
 }

@@ -1,5 +1,5 @@
 html {
-    background-color: rgba(27, 38, 54, 1);
+    background-color: #b5b5b5;
     text-align: center;
     color: white;
 }
@@ -18,4 +18,23 @@ body {
     font-weight: 400;
     src: local(""),
     url("assets/fonts/nunito-v16-latin-regular.woff2") format("woff2");
+}
+
+
+.btn {
+    background-color: #04aa0c;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 15px;
+}
+
+.btn:hover {
+    background-color: #3fb644;
 }
