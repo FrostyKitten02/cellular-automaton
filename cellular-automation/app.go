@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"time"
 )
@@ -37,9 +38,12 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-func (a *App) Step() *Grid {
+func (a *App) Step() (*Grid, error) {
+	if a.simulationCancelFunc != nil {
+		return nil, errors.New("Simulation in progress")
+	}
 	a.stepInternal()
-	return &a.grid
+	return &a.grid, nil
 }
 
 func (a *App) stepInternal() {
@@ -50,7 +54,11 @@ func (a *App) stepInternal() {
 	a.grid.Cells = cells
 }
 
-func (a *App) Simulate() {
+func (a *App) Simulate() error {
+	if a.simulationCancelFunc != nil {
+		return errors.New("Simulation already in progress")
+	}
+
 	var streamCtx context.Context
 	streamCtx, a.simulationCancelFunc = context.WithCancel(a.ctx) // Create a cancelable context
 
@@ -67,6 +75,8 @@ func (a *App) Simulate() {
 			}
 		}
 	}()
+
+	return nil
 }
 
 func (a *App) StopSimulation() Grid {

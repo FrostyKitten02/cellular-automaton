@@ -1,27 +1,29 @@
 import Grid from "./Grid";
 // @ts-ignore
-import {ResetGrid, Simulate, Step, Increment, InitGrid, Init2, StopSimulation, EditGrid} from "../wailsjs/go/main/App";
+import {EditGrid, InitGrid, ResetGrid, Simulate, Step, StopSimulation} from "../wailsjs/go/main/App";
 import {main} from "../wailsjs/go/models";
 import {useEffect, useState} from "react";
-import {EventsOff, EventsOn} from "../wailsjs/runtime";
+import {EventsOn} from "../wailsjs/runtime";
 
 
 function App() {
     const [grid, setGrid] = useState<main.Grid | null>(null);
     const [canEdit, setCanEdit] = useState<boolean>(true);
     const [gridEdited, setGridEdited] = useState<boolean>(false);
+    const [alertMessage, setAlertMessage] = useState<string>("")
+
 
     useEffect(() => {
         InitGrid(20,20).then( res => {
            setGrid(res);
         });
 
-        EventsOn("simulation_stream", (newData: main.Grid) => {
+        const removeListener = EventsOn("simulation_stream", (newData: main.Grid) => {
             setGrid(newData)
         });
 
         return () => {
-            EventsOff("simulation_stream")
+            removeListener()
         }
     }, [])
 
@@ -31,7 +33,7 @@ function App() {
         if (!canEdit) {
             return;
         }
-        console.log("Cell click called on cell with col(x)=",col," row(y)=",row)
+        console.log("Cell click called on cell with col(x)=", col, " row(y)=", row)
         setGrid(grid => {
             if (grid?.Cells == null) {
                 return grid;
@@ -46,58 +48,80 @@ function App() {
 
     if (grid == null) {
         return (
-            <div>
+            <div className="app-main">
                 LOADING...
             </div>
         )
     }
 
-    const saveEditAndCallFunc = async <I, O>(i: I, f: (input: I) => Promise<O>) => {
+    const saveEditAndCallFunc: <I, O>(i: I, f: (input: I) => Promise<O>) => Promise<O | null> = async <I, O>(i: I, f: (input: I) => Promise<O>) => {
         if (gridEdited) {
-            await EditGrid(grid);
-            return await f(i);
+            try {
+                await EditGrid(grid)
+            } catch (err) {
+                return null;
+            }
+
+            return f(i);
         }
 
         return f(i)
     };
 
     return (
-        <div>
-            <button className="btn" onClick={() => {
-                saveEditAndCallFunc(null, Simulate)
-                    .then(() => {
-                        setCanEdit(false);
+        <div className="app-wrapper">
+            <div className="app-main">
+                <button className="btn" onClick={() => {
+                    saveEditAndCallFunc(null, Simulate)
+                        ?.then(() => {
+                            setCanEdit(false);
+                        })
+                        .catch(err => {
+                            setAlertMessage(err);
+                        })
+                }}>
+                    Simulate
+                </button>
+                <button className="btn" onClick={() => {
+                    //probably don't need to save here??
+                    saveEditAndCallFunc(null, StopSimulation)
+                        ?.then((res) => {
+                            setGrid(res);
+                            setCanEdit(true);
+                        })
+                }}>
+                    Stop
+                </button>
+                <button className="btn" onClick={() => {
+                    saveEditAndCallFunc(null, Step)
+                        ?.then((res) => {
+                            setGrid(res);
+                        })
+                        .catch(err => {
+                            setAlertMessage(err);
+                        })
+                }}>
+                    Step
+                </button>
+                <button className="btn" onClick={() => {
+                    ResetGrid().then((res: main.Grid) => {
+                        //TODO implement and render
+                        console.log("resolved reset")
                     })
-            }}>
-                Simulate
-            </button>
-            <button className="btn" onClick={() => {
-                //probably don't need to save here??
-                saveEditAndCallFunc(null, StopSimulation)
-                    .then((res) => {
-                        setGrid(res);
-                        setCanEdit(true);
-                    })
-            }}>
-                Stop
-            </button>
-            <button className="btn" onClick={() => {
-                saveEditAndCallFunc(null, Step).then((res) => {
-                    setGrid(res);
-                })
-            }}>
-                Step
-            </button>
-            <button className="btn" onClick={() => {
-                ResetGrid().then((res: main.Grid) => {
-                    //TODO implement and render
-                    console.log("resolved reset")
-                })
-            }}>
-                Reset
-            </button>
-            <div style={{display: "flex", justifyContent: "center", marginTop: "20px"}}>
-                <Grid grid={grid} onCellClick={onCellClick}/>
+                }}>
+                    Reset
+                </button>
+                <div style={{display: "flex", justifyContent: "center", marginTop: "20px"}}>
+                    <Grid grid={grid} onCellClick={onCellClick}/>
+                </div>
+            </div>
+            <div className="alert" style={{display: alertMessage != "" ? "block" : "none"}}>
+                <div>
+                    <p>{alertMessage}</p>
+                    <button className="btn-sm" onClick={() => {setAlertMessage("")}}>
+                        Cancel
+                    </button>
+                </div>
             </div>
         </div>
     )
