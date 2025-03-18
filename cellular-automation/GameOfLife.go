@@ -15,26 +15,6 @@ type NeighbourCounts struct {
 
 func initialConway(xSize int, ySize int) [][]Cell {
 	return createCellsCustom(xSize, ySize, func(x int, y int) string {
-		if x == xSize-1 && y == 0 {
-			return ALIVE_CELL
-		}
-
-		if x == xSize-3 && y == 0 {
-			return ALIVE_CELL
-		}
-
-		if y == 1 && x == xSize-3 {
-			return ALIVE_CELL
-		}
-
-		if y == 1 && x == xSize-2 {
-			return ALIVE_CELL
-		}
-
-		if y == 2 && x == xSize-2 {
-			return ALIVE_CELL
-		}
-
 		return DEAD_CELL
 	})
 }

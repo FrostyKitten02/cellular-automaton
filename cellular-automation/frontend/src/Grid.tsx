@@ -1,6 +1,7 @@
 import {main} from "../wailsjs/go/models";
+import Cell from "./Cell";
 
-export default function Grid({grid} : {grid: main.Grid | null}) {
+export default function Grid({ grid, onCellClick}: { grid: main.Grid | null, onCellClick: (row: number, col: number) => void }) {
     if (grid == null) {
         return (
             <></>
@@ -13,28 +14,10 @@ export default function Grid({grid} : {grid: main.Grid | null}) {
     for (let row = 0; row < y; row++) {
         const cells = [];
         for (let col = 0; col < x; col++) {
-            //TODO use UUID for key
             const cell = grid.Cells[row][col]
-
-            let color = "#ff0000" //if red is displayed we have a problem
-            if (cell.cellType === "DEAD") {
-                color = "#ffffff"
-            }
-
-            if (cell.cellType == "ALIVE") {
-                color = "#000000"
-            }
+            //TODO use UUID for key
             cells.push(
-                <div className={`r${row}-c${col}`} key={`${row}-${col}`}
-                     style={
-                        {
-                            minWidth: 10,
-                            maxWidth: 10,
-                            minHeight: 10,
-                            maxHeight: 10,
-                            backgroundColor: color,
-                            margin: 1
-                        }} />
+                <Cell cell={cell} row={row} col={col} onClick={onCellClick}/>
             );
         }
         uiGrid.push(
