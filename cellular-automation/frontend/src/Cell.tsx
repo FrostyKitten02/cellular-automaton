@@ -7,6 +7,7 @@ export default function Cell({cell, row, col, onClick}: {
     col: number,
     onClick: (row: number, col: number) => void
 }) {
+    const size = 20;
     let color = "#ff0000" //if red is displayed we have a problem
     if (cell.cellType === "DEAD") {
         color = "#ffffff"
@@ -23,10 +24,10 @@ export default function Cell({cell, row, col, onClick}: {
              }}
              style={
                  {
-                     minWidth: 10,
-                     maxWidth: 10,
-                     minHeight: 10,
-                     maxHeight: 10,
+                     minWidth: size,
+                     maxWidth: size,
+                     minHeight: size,
+                     maxHeight: size,
                      backgroundColor: color,
                      margin: 1
                  }}/>
