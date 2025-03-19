@@ -1,7 +1,7 @@
-import {main} from "../wailsjs/go/models";
+import {model} from "../wailsjs/go/models";
 import Cell from "./Cell";
 
-export default function Grid({ grid, onCellClick}: { grid: main.Grid | null, onCellClick: (row: number, col: number) => void }) {
+export default function Grid({ grid, onCellClick}: { grid: model.Grid | null, onCellClick: (row: number, col: number) => void }) {
     if (grid == null) {
         return (
             <></>

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"cellular-automation/game"
+	"cellular-automation/model"
 	"context"
 	"errors"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -11,20 +13,7 @@ import (
 type App struct {
 	ctx                  context.Context
 	simulationCancelFunc context.CancelFunc
-	grid                 Grid
-}
-
-type Cell struct {
-	CellType *string `json:"cellType"`
-	X        int     `json:"x"`
-	Y        int     `json:"y"`
-}
-
-type Grid struct {
-	Cells      [][]Cell `json:"Cells"`
-	XSize      int      `json:"xSize"`
-	YSize      int      `json:"ySize"`
-	InProgress bool     `json:"inProgress"`
+	game                 model.Game
 }
 
 // NewApp creates a new App application struct
@@ -38,20 +27,26 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-func (a *App) Step() (*Grid, error) {
+func (a *App) Step() (*model.Grid, error) {
 	if a.simulationCancelFunc != nil {
 		return nil, errors.New("Simulation in progress")
 	}
-	a.stepInternal()
-	return &a.grid, nil
+
+	err := a.stepInternal()
+	if err != nil {
+		return nil, err
+	}
+
+	return a.game.GetGrid(), nil
 }
 
-func (a *App) stepInternal() {
-	cells, err := nexGeneration(a.grid)
+func (a *App) stepInternal() error {
+	err := a.game.NextGeneration()
 	if err != nil {
-		a.grid.Cells = nil
+		return err
 	}
-	a.grid.Cells = cells
+
+	return nil
 }
 
 func (a *App) Simulate() error {
@@ -69,8 +64,13 @@ func (a *App) Simulate() error {
 				runtime.LogInfo(a.ctx, "Stream stopped by client")
 				return
 			default:
-				a.stepInternal()
-				runtime.EventsEmit(a.ctx, "simulation_stream", a.grid)
+				err := a.stepInternal()
+				if err != nil {
+					//TODO give client information about cancel!
+					a.simulationCancelFunc()
+					return
+				}
+				runtime.EventsEmit(a.ctx, "simulation_stream", a.game.GetGrid())
 				time.Sleep(80 * time.Millisecond)
 			}
 		}
@@ -79,33 +79,27 @@ func (a *App) Simulate() error {
 	return nil
 }
 
-func (a *App) StopSimulation() Grid {
+func (a *App) StopSimulation() model.Grid {
 	if a.simulationCancelFunc != nil {
 		a.simulationCancelFunc()
 		a.simulationCancelFunc = nil
 	}
 
-	return a.grid
+	return *a.game.GetGrid()
 }
 
-func (a *App) ResetGrid() Grid {
-	return Grid{}
+func (a *App) ResetGrid() model.Grid {
+	return model.Grid{}
 }
 
-func (a *App) InitGrid(xSize int, ySize int) Grid {
-	grid := Grid{
-		Cells:      initialConway(xSize, ySize),
-		XSize:      xSize,
-		YSize:      ySize,
-		InProgress: false,
-	}
-
-	a.grid = grid
-	return grid
+func (a *App) Init(xSize int, ySize int) model.Grid {
+	a.game = &game.Conway{}
+	a.game.Init(xSize, ySize)
+	return *a.game.GetGrid()
 }
 
-func (a *App) EditGrid(grid Grid) Grid {
+func (a *App) EditGrid(grid model.Grid) model.Grid {
 	//TODO should validate grid size
-	a.grid = grid
-	return a.grid
+	a.game.EditGrid(grid)
+	return *a.game.GetGrid()
 }

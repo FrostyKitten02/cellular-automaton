@@ -1,8 +1,8 @@
-import {main} from "../wailsjs/go/models";
+import {model} from "../wailsjs/go/models";
 
 
 export default function Cell({cell, row, col, onClick}: {
-    cell: main.Cell,
+    cell: model.Cell,
     row: number,
     col: number,
     onClick: (row: number, col: number) => void

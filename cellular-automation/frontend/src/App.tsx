@@ -1,24 +1,24 @@
 import Grid from "./Grid";
 // @ts-ignore
-import {EditGrid, InitGrid, ResetGrid, Simulate, Step, StopSimulation} from "../wailsjs/go/main/App";
-import {main} from "../wailsjs/go/models";
+import {EditGrid, Init, ResetGrid, Simulate, Step, StopSimulation} from "../wailsjs/go/main/App";
+import {model} from "../wailsjs/go/models";
 import {useEffect, useState} from "react";
 import {EventsOn} from "../wailsjs/runtime";
 
 
 function App() {
-    const [grid, setGrid] = useState<main.Grid | null>(null);
+    const [grid, setGrid] = useState<model.Grid | null>(null);
     const [canEdit, setCanEdit] = useState<boolean>(true);
     const [gridEdited, setGridEdited] = useState<boolean>(false);
     const [alertMessage, setAlertMessage] = useState<string>("")
 
 
     useEffect(() => {
-        InitGrid(40,40).then( res => {
+        Init(40,40).then( res => {
            setGrid(res);
         });
 
-        const removeListener = EventsOn("simulation_stream", (newData: main.Grid) => {
+        const removeListener = EventsOn("simulation_stream", (newData: model.Grid) => {
             setGrid(newData)
         });
 
@@ -41,7 +41,7 @@ function App() {
             grid.Cells[row][col].cellType = "ALIVE";
             // return {...grid};
             setGridEdited(true);
-            return new main.Grid({...grid})
+            return new model.Grid({...grid})
         })
     }
 
@@ -104,7 +104,7 @@ function App() {
                     Step
                 </button>
                 <button className="btn" onClick={() => {
-                    ResetGrid().then((res: main.Grid) => {
+                    ResetGrid().then((res: model.Grid) => {
                         //TODO implement and render
                         console.log("resolved reset")
                     })
