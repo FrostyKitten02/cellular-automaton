@@ -38,3 +38,34 @@ body {
 .btn:hover {
     background-color: #3fb644;
 }
+
+.alert {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+
+    background: rgba(255, 0, 0, 0.31);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
+    border-radius: 15px;
+    padding: 5px;
+    text-align: center;
+    color: white;
+}
+
+.btn-sm {
+    background-color: #04aa0c;
+    border: none;
+    color: white;
+    padding: 5px 3px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin: 2px 1px;
+    cursor: pointer;
+    border-radius: 15px;
+}
