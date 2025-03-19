@@ -93,7 +93,9 @@ func (a *App) ResetGrid() model.Grid {
 }
 
 func (a *App) Init(xSize int, ySize int) model.Grid {
-	a.game = &game.Conway{}
+	a.game = &game.Conway{
+		Rule: "B3/S23",
+	}
 	a.game.Init(xSize, ySize)
 	return *a.game.GetGrid()
 }

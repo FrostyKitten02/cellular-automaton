@@ -16,6 +16,12 @@ type NeighbourCounts struct {
 
 type Conway struct {
 	Grid model.Grid
+	Rule string
+}
+
+type ConwayRule struct {
+	born    []int //number of alive neighbours a dead cell needs to be born
+	survive []int //number of alive neighbours an alive cell needs to survive
 }
 
 func (c *Conway) EditGrid(grid model.Grid) {
@@ -27,15 +33,14 @@ func (c *Conway) GetGrid() *model.Grid {
 }
 
 func (c *Conway) NextGeneration() error {
+	rule := parseStringRule(c.Rule)
 	nextGen := utils.CreateCells(c.Grid.XSize, c.Grid.YSize)
-	//create when exactly 3 neighbours alive
-	//keep alive 2 or 3 neighbours
 	for x := 0; x < c.Grid.XSize; x++ {
 		for y := 0; y < c.Grid.YSize; y++ {
 			counts := countNeighbours(c.Grid, x, y)
 			cell := utils.GetCellFromGrid(c.Grid, x, y)
 			if *cell.CellType == ALIVE_CELL {
-				if counts.alive == 2 || counts.alive == 3 {
+				if ruleApplies(counts, rule.survive) {
 					nextGen[y][x] = utils.CreateCell(ALIVE_CELL, x, y)
 					continue
 				}
@@ -45,7 +50,7 @@ func (c *Conway) NextGeneration() error {
 			}
 
 			if *cell.CellType == DEAD_CELL {
-				if counts.alive == 3 {
+				if ruleApplies(counts, rule.born) {
 					nextGen[y][x] = utils.CreateCell(ALIVE_CELL, x, y)
 					continue
 				}
@@ -94,6 +99,7 @@ func countNeighbours(grid model.Grid, cellX int, cellY int) NeighbourCounts {
 		if cell == nil {
 			continue
 		}
+
 		if *cell.CellType == ALIVE_CELL {
 			res.alive++
 		}
