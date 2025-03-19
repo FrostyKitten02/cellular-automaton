@@ -4,6 +4,7 @@ import (
 	"cellular-automation/model"
 	"cellular-automation/utils"
 	"errors"
+	"math/rand"
 )
 
 const ALIVE_CELL = "ALIVE"
@@ -69,6 +70,10 @@ func (c *Conway) NextGeneration() error {
 
 func (c *Conway) Init(xSize int, ySize int) {
 	cells := utils.CreateCellsCustom(xSize, ySize, func(x int, y int) string {
+		if rand.Intn(101) > 50 {
+			return ALIVE_CELL
+		}
+
 		return DEAD_CELL
 	})
 

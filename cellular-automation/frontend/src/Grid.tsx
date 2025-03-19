@@ -9,8 +9,8 @@ export default function Grid({ grid, onCellClick}: { grid: model.Grid | null, on
     }
 
     const uiGrid = [];
-    const x = grid.Cells.length;
-    const y = grid.Cells[0].length;
+    const x = grid.Cells[0].length;
+    const y = grid.Cells.length;
     for (let row = 0; row < y; row++) {
         const cells = [];
         for (let col = 0; col < x; col++) {

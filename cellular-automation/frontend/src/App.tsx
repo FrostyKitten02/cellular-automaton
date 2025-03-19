@@ -14,7 +14,7 @@ function App() {
 
 
     useEffect(() => {
-        Init(40,40).then( res => {
+        Init(85,38).then( res => {
            setGrid(res);
         });
 
