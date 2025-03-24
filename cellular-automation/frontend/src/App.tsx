@@ -166,7 +166,7 @@ function App() {
                     Reset
                 </button>
                 <div style={{display: "flex", justifyContent: "center", marginTop: "20px"}}>
-                    <Grid grid={grid} onCellClick={onCellClick}/>
+                    <Grid grid={grid} onCellClick={onCellClick} gameMode={gameMode}/>
                 </div>
             </div>
             <div className="alert" style={{display: alertMessage != "" ? "block" : "none"}}>

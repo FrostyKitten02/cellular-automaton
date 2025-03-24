@@ -1,21 +1,16 @@
 import {model} from "../wailsjs/go/models";
+import CellUtil from "./utils/CellUtil";
 
 
-export default function Cell({cell, row, col, onClick}: {
+export default function Cell({cell, row, col, onClick, gameMode}: {
     cell: model.Cell,
     row: number,
     col: number,
-    onClick: (row: number, col: number) => void
+    onClick: (row: number, col: number) => void,
+    gameMode: string
 }) {
     const size = 20;
-    let color = "#ff0000" //if red is displayed we have a problem
-    if (cell.cellType === "DEAD") {
-        color = "#ffffff"
-    }
-
-    if (cell.cellType == "ALIVE") {
-        color = "#000000"
-    }
+    const color = CellUtil.getCellColor(cell, gameMode)
 
     return (
         <div className={`r${row}-c${col}`} key={`${row}-${col}`}

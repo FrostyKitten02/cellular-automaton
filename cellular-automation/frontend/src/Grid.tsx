@@ -1,7 +1,7 @@
 import {model} from "../wailsjs/go/models";
 import Cell from "./Cell";
 
-export default function Grid({ grid, onCellClick}: { grid: model.Grid | null, onCellClick: (row: number, col: number) => void }) {
+export default function Grid({ grid, onCellClick, gameMode}: { grid: model.Grid | null, onCellClick: (row: number, col: number) => void , gameMode: string}) {
     if (grid == null) {
         return (
             <></>
@@ -17,7 +17,7 @@ export default function Grid({ grid, onCellClick}: { grid: model.Grid | null, on
             const cell = grid.Cells[row][col]
             //TODO use UUID for key
             cells.push(
-                <Cell cell={cell} row={row} col={col} onClick={onCellClick}/>
+                <Cell cell={cell} row={row} col={col} onClick={onCellClick} gameMode={gameMode}/>
             );
         }
         uiGrid.push(

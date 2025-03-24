@@ -1,0 +1,38 @@
+import {model} from "../../wailsjs/go/models";
+
+
+export default class CellUtil {
+    private constructor() {}
+
+    private static readonly ERR_COLOR = "#ff0000" //if red is displayed we have a problem
+
+    private static readonly CONWAY_COLORS = new Map<string, string>(
+        [
+            ["DEAD", "#ffffff"],
+            ["ALIVE", "#000000"],
+        ]
+    )
+
+    public static getCellColor(cell: model.Cell, gameMode: string): string {
+        if (cell.cellType == undefined || cell.cellType == "") {
+            return this.ERR_COLOR;
+        }
+
+        if (gameMode == "CONWAY") {
+            return this.getConwayCellColor(cell);
+        }
+
+        return this.ERR_COLOR
+    }
+
+
+    private static getConwayCellColor(cell: model.Cell): string {
+        const color = this.CONWAY_COLORS.get(cell.cellType!); //cant be undefined at this point!!
+
+        if (color != undefined) {
+            return color;
+        }
+
+        return this.ERR_COLOR;
+    }
+}
