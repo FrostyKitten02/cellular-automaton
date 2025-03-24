@@ -16,8 +16,9 @@ type NeighbourCounts struct {
 }
 
 type Conway struct {
-	Grid model.Grid
-	Rule string
+	Grid         model.Grid
+	Rule         string
+	alivePercent int
 }
 
 type ConwayRule struct {
@@ -70,7 +71,7 @@ func (c *Conway) NextGeneration() error {
 
 func (c *Conway) Init(xSize int, ySize int) {
 	cells := utils.CreateCellsCustom(xSize, ySize, func(x int, y int) string {
-		if rand.Intn(101) > 50 {
+		if rand.Intn(101) <= c.alivePercent {
 			return ALIVE_CELL
 		}
 
@@ -115,4 +116,11 @@ func countNeighbours(grid model.Grid, cellX int, cellY int) NeighbourCounts {
 	}
 
 	return res
+}
+
+func NewConway(rule string, alivePercent int) *Conway {
+	return &Conway{
+		Rule:         rule,
+		alivePercent: alivePercent,
+	}
 }

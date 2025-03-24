@@ -6,15 +6,20 @@ import {useEffect, useState} from "react";
 import {EventsOn} from "../wailsjs/runtime";
 
 
+const WIDTH = 85;
+const HEIGHT = 38;
+
 function App() {
     const [grid, setGrid] = useState<model.Grid | null>(null);
     const [canEdit, setCanEdit] = useState<boolean>(true);
     const [gridEdited, setGridEdited] = useState<boolean>(false);
     const [alertMessage, setAlertMessage] = useState<string>("")
 
+    const [gameMode, setGameMode] = useState<string>("CONWAY")
+    const [options, setOptions] = useState<Record<string, string>>({})
 
     useEffect(() => {
-        Init(85,38).then( res => {
+        Init(WIDTH,HEIGHT, gameMode, options).then( res => {
            setGrid(res);
         });
 
@@ -26,6 +31,17 @@ function App() {
             removeListener()
         }
     }, [])
+
+    const optsChange = () => {
+        Init(WIDTH, HEIGHT, gameMode, options)
+            .then(res => {
+                setGrid(res);
+            })
+            .catch(err => {
+                setAlertMessage(err);
+            })
+    }
+
 
     //row = y
     //col = x
@@ -71,6 +87,44 @@ function App() {
     return (
         <div className="app-wrapper">
             <div className="app-main">
+                <label>
+                    Gamemode
+                    <select defaultValue={"CONWAY"} onChange={(event) => {
+                        setGameMode(event.target.value);
+                    }}>
+                        <option value="CONWAY">Conway</option>
+                        <option value="SANDBOX">Sandbox</option>
+                    </select>
+                </label>
+
+                {gameMode != "CONWAY"?null:
+                    <div>
+                        <label>
+                            Condition
+                            <input name="conditions" value={options.conwayCondition}  onChange={(event) => {
+                                const conditionString = event.target.value;
+                                setOptions(opts => {
+                                    return {...opts, conwayCondition: conditionString};
+                                });
+                            }} />
+                        </label>
+                        <label>
+                            Alive %
+                            <input type={"number"} min={0} max={100} name="alivePercent" value={options.alivePercent} onChange={(event) => {
+                                const val = event.target.value;
+                                setOptions(opts => {
+                                    return {...opts, alivePercent: val}
+                                })
+                            }}/>
+                        </label>
+                    </div>
+                }
+
+                <button className="btn" onClick={() => {
+                    optsChange()
+                }}>
+                    Apply
+                </button>
                 <button className="btn" onClick={() => {
                     saveEditAndCallFunc(null, Simulate)
                         ?.then(() => {

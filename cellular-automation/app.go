@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"strconv"
 	"time"
 )
 
@@ -92,16 +93,46 @@ func (a *App) ResetGrid() model.Grid {
 	return model.Grid{}
 }
 
-func (a *App) Init(xSize int, ySize int) model.Grid {
-	a.game = &game.Conway{
-		Rule: "B678/S2345678",
+func (a *App) Init(xSize int, ySize int, gameMode string, options map[string]string) (*model.Grid, error) {
+	if a.simulationCancelFunc != nil {
+		return nil, errors.New("Simulation in progress")
 	}
+
+	if gameMode == "CONWAY" {
+		conwayCondition, alivePercent, err := parseConwayOpts(options)
+		if err != nil {
+			return nil, err
+		}
+		a.game = game.NewConway(conwayCondition, alivePercent)
+	}
+
 	a.game.Init(xSize, ySize)
-	return *a.game.GetGrid()
+	return a.game.GetGrid(), nil
 }
 
 func (a *App) EditGrid(grid model.Grid) model.Grid {
 	//TODO should validate grid size
 	a.game.EditGrid(grid)
 	return *a.game.GetGrid()
+}
+
+func parseConwayOpts(options map[string]string) (string, int, error) {
+	aliveOption := options["alivePercent"]
+	alivePercent := 0
+	if aliveOption == "" {
+
+	} else {
+		parseRes, err := strconv.Atoi(aliveOption)
+		if err != nil {
+			return "", 0, errors.New("Invalid value for 'alivePercent': " + options["alivePercent"])
+		}
+		alivePercent = parseRes
+	}
+
+	conwayCondition := options["conwayCondition"]
+	if conwayCondition == "" {
+		conwayCondition = "B3/S23" //default value for conway if no condition is sent
+	}
+
+	return conwayCondition, alivePercent, nil
 }
