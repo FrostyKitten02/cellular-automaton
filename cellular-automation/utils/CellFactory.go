@@ -4,22 +4,16 @@ import (
 	"cellular-automation/model"
 )
 
-func CreateCellOnCellLocation(cellType string, placeHere model.Cords) model.Cell {
-	return CreateCell(cellType, placeHere.GetX(), placeHere.GetY())
+func CreateCellOnCellLocation(cellType string, placeHere model.Cords, fromGen int) model.Cell {
+	return CreateCell(cellType, placeHere.GetX(), placeHere.GetY(), fromGen)
 }
 
-func CreateCell(cellType string, x int, y int) model.Cell {
+func CreateCell(cellType string, x int, y int, fromGen int) model.Cell {
 	return model.Cell{
-		CellType: &cellType,
-		X:        x,
-		Y:        y,
-	}
-}
-
-func CreateEmptyCell(x int, y int) *model.Cell {
-	return &model.Cell{
-		X: x,
-		Y: y,
+		CellType:       &cellType,
+		X:              x,
+		Y:              y,
+		BornGeneration: fromGen,
 	}
 }
 
@@ -31,9 +25,10 @@ func CreateCellsCustom(xSize int, ySize int, cellType func(x int, y int) string)
 		for x := 0; x < xSize; x++ {
 			ct := cellType(x, y)
 			cells[y][x] = model.Cell{
-				CellType: &ct,
-				X:        x,
-				Y:        y,
+				CellType:       &ct,
+				X:              x,
+				Y:              y,
+				BornGeneration: 0,
 			}
 		}
 	}

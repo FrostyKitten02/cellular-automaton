@@ -8,9 +8,11 @@ const (
 	EmptyCell CellType = "EMPTY" //this is dead cell in normal conway game of life
 	//CONWAY CELLS END
 	//CUSTOM CELLS
-	SandCell CellType = "SAND"
-	WoodCell CellType = "WOOD"
-	FireCell CellType = "FIRE"
+	SandCell   CellType = "SAND"
+	WoodCell   CellType = "WOOD"
+	FireCell   CellType = "FIRE"
+	DarkSmoke  CellType = "DARK_SMOKE"
+	WhiteSmoke CellType = "WHITE_SMOKE"
 )
 
 func (c CellType) String() string {

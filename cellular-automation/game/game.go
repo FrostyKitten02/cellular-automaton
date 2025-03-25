@@ -24,11 +24,18 @@ type SandboxGame struct {
 	elements         *[]model.Element
 	genArgs          GenerationArgs
 	elementsProvider model.ElementProvider
+	generationNum    int
 }
 
 type ConwayRule struct {
 	born    []int //number of alive neighbours a dead cell needs to be born
 	survive []int //number of alive neighbours an alive cell needs to survive
+}
+
+func (c *SandboxGame) GetGameInfo() model.GameInfo {
+	return model.GameInfo{
+		GenerationNum: c.generationNum,
+	}
 }
 
 func (c *SandboxGame) GetElementProvider() model.ElementProvider {
@@ -44,6 +51,9 @@ func (c *SandboxGame) GetGrid() *model.Grid {
 }
 
 func (c *SandboxGame) NextGeneration() error {
+	c.generationNum = c.generationNum + 1
+
+	gameInfo := c.GetGameInfo()
 	currentGen := c.Grid
 	nextGen := utils.CreateCells(currentGen.XSize, currentGen.YSize)
 	for x := 0; x < currentGen.XSize; x++ {
@@ -53,11 +63,11 @@ func (c *SandboxGame) NextGeneration() error {
 			if *cell.CellType == model.WallCell.String() {
 				//maybe we will need to check here also if any cell was already created before creating it???
 				if ruleApplies(counts, c.Rule.survive) {
-					nextGen[y][x] = utils.CreateCell(model.WallCell.String(), x, y)
+					nextGen[y][x] = utils.CreateCell(model.WallCell.String(), x, y, cell.BornGeneration)
 					continue
 				}
 
-				nextGen[y][x] = utils.CreateCell(model.EmptyCell.String(), x, y)
+				nextGen[y][x] = utils.CreateCell(model.EmptyCell.String(), x, y, gameInfo.GenerationNum)
 				continue
 			}
 
@@ -68,11 +78,11 @@ func (c *SandboxGame) NextGeneration() error {
 				}
 
 				if ruleApplies(counts, c.Rule.born) {
-					nextGen[y][x] = utils.CreateCell(model.WallCell.String(), x, y)
+					nextGen[y][x] = utils.CreateCell(model.WallCell.String(), x, y, gameInfo.GenerationNum)
 					continue
 				}
 
-				nextGen[y][x] = utils.CreateCell(model.EmptyCell.String(), x, y)
+				nextGen[y][x] = utils.CreateCell(model.EmptyCell.String(), x, y, cell.BornGeneration)
 				continue
 			}
 
@@ -88,12 +98,12 @@ func (c *SandboxGame) NextGeneration() error {
 				return errors.New("INVALID CELL TYPE GIVEN")
 			}
 
-			newCell := (*element).NextGenerationCell(currentGen, *cell, c.elementsProvider)
+			newCell := (*element).NextGenerationCell(currentGen, *cell, c.elementsProvider, gameInfo)
 			nextGen[newCell.GetY()][newCell.GetX()] = newCell
 
 			//TODO maybe move logic for placing empty cell if cell was moved in internal element logic???
 			if newCell.X != x || newCell.Y != y {
-				nextGen[y][x] = utils.CreateCell(model.EmptyCell.String(), x, y)
+				nextGen[y][x] = utils.CreateCell(model.EmptyCell.String(), x, y, gameInfo.GenerationNum)
 			}
 		}
 	}
@@ -114,6 +124,10 @@ func (c *SandboxGame) Init(xSize int, ySize int) {
 
 		for _, element := range *c.elements {
 			val := c.genArgs.elementsPercent[element.GetCellType().String()]
+			if &val == nil {
+				continue
+			}
+
 			if rand.Intn(101) <= val {
 				return element.GetCellType().String()
 			}
@@ -176,7 +190,7 @@ func NewConway(rule string, alivePercent int) *SandboxGame {
 func NewSandbox(rule string, alivePercent int) *SandboxGame {
 	parsedRule := parseStringRule(rule)
 
-	gameElements := &[]model.Element{&elements.Sand, &elements.Wood, &elements.Fire}
+	gameElements := &[]model.Element{&elements.Sand, &elements.Wood, &elements.Fire, &elements.DarkSmoke, &elements.WhiteSmoke}
 	return &SandboxGame{
 		Rule: parsedRule,
 		genArgs: GenerationArgs{

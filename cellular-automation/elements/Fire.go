@@ -9,7 +9,7 @@ import (
 var Fire = fire{
 	cellType: model.FireCell,
 	properties: model.ElementProperties{
-		Flameable: false,
+		Flammable: false,
 		Burning:   true,
 	},
 }
@@ -27,22 +27,38 @@ func (f *fire) GetCellType() model.CellType {
 	return f.cellType
 }
 
-func (f *fire) NextGenerationCell(currentGeneration model.Grid, currentCell model.Cell, provider model.ElementProvider) model.Cell {
-	moveIndex := rand.Intn(4)
-	leftBottom := utils.GetBottomLeftNeighbour(currentGeneration, currentCell.GetX(), currentCell.GetY())
-	if leftBottom != nil && *leftBottom.CellType == model.EmptyCell.String() && moveIndex <= 0 {
-		return utils.CreateCellOnCellLocation(f.GetCellType().String(), leftBottom)
-	}
-
+func (f *fire) NextGenerationCell(currentGeneration model.Grid, currentCell model.Cell, provider model.ElementProvider, gameInfo model.GameInfo) model.Cell {
 	bottom := utils.GetBottomNeighbour(currentGeneration, currentCell.GetX(), currentCell.GetY())
-	if bottom != nil && *bottom.CellType == model.EmptyCell.String() && moveIndex <= 1 {
-		return utils.CreateCellOnCellLocation(f.GetCellType().String(), bottom)
+	//replace with flame if hits!!
+	if bottom != nil {
+		if provider.IsFlammableCellType(*bottom.CellType) {
+			return utils.CreateCellOnCellLocation(model.WhiteSmoke.String(), bottom, gameInfo.GenerationNum)
+		}
+
+		return utils.CreateCellOnCellLocation(model.DarkSmoke.String(), bottom, gameInfo.GenerationNum)
 	}
 
-	rightBottom := utils.GetBottomNeighbour(currentGeneration, currentCell.GetX(), currentCell.GetY())
-	if rightBottom != nil && *rightBottom.CellType == model.EmptyCell.String() && moveIndex <= 2 {
-		return utils.CreateCellOnCellLocation(f.GetCellType().String(), rightBottom)
+	possibleMoves := make([]model.Cell, 0)
+	if bottom != nil && *bottom.CellType == model.EmptyCell.String() {
+		possibleMoves = append(possibleMoves, *bottom)
 	}
 
-	return utils.CreateCellOnCellLocation(f.GetCellType().String(), &currentCell)
+	leftBottom := utils.GetBottomLeftNeighbour(currentGeneration, currentCell.GetX(), currentCell.GetY())
+	if leftBottom != nil && *leftBottom.CellType == model.EmptyCell.String() {
+		possibleMoves = append(possibleMoves, *leftBottom)
+	}
+
+	rightBottom := utils.GetBottomRightNeighbour(currentGeneration, currentCell.GetX(), currentCell.GetY())
+	if rightBottom != nil && *rightBottom.CellType == model.EmptyCell.String() {
+		possibleMoves = append(possibleMoves, *rightBottom)
+	}
+
+	possibleMovesCount := len(possibleMoves)
+	if possibleMovesCount == 0 {
+		return utils.CreateCellOnCellLocation(f.GetCellType().String(), &currentCell, currentCell.BornGeneration)
+	}
+
+	randIndex := rand.Intn(possibleMovesCount)
+	moveTo := possibleMoves[randIndex]
+	return utils.CreateCellOnCellLocation(f.GetCellType().String(), &moveTo, currentCell.BornGeneration)
 }

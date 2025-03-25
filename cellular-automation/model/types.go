@@ -10,18 +10,25 @@ type Game interface {
 
 type Element interface {
 	GetCellType() CellType
-	NextGenerationCell(currentGeneration Grid, currentCell Cell, provider ElementProvider) Cell
+	NextGenerationCell(currentGeneration Grid, currentCell Cell, provider ElementProvider, gameInfo GameInfo) Cell
 	GetProperties() ElementProperties
+}
+
+type GameInfo struct {
+	GenerationNum int
 }
 
 type ElementProvider interface {
 	GetBurningElements() []Element
 	GetBurningElementsCellTypes() []string
 	IsBurningCellType(cellType string) bool
+	GetFlammableElements() []Element
+	GetFlammableElementosTypes() []string
+	IsFlammableCellType(cellType string) bool
 }
 
 type ElementProperties struct {
-	Flameable bool //if element burns
+	Flammable bool //if element burns
 	Burning   bool //if element burns other elements
 }
 
@@ -31,9 +38,10 @@ type Cords interface {
 }
 
 type Cell struct {
-	CellType *string `json:"cellType"`
-	X        int     `json:"x"`
-	Y        int     `json:"y"`
+	CellType       *string `json:"cellType"`
+	X              int     `json:"x"`
+	Y              int     `json:"y"`
+	BornGeneration int     `json:"bornGeneration"`
 }
 
 func (c *Cell) GetX() int {
