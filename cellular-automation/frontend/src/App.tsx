@@ -54,8 +54,7 @@ function App() {
             if (grid?.Cells == null) {
                 return grid;
             }
-            grid.Cells[row][col].cellType = "ALIVE";
-            // return {...grid};
+            grid.Cells[row][col].cellType = "WALL";
             setGridEdited(true);
             return new model.Grid({...grid})
         })
@@ -109,7 +108,7 @@ function App() {
                             }} />
                         </label>
                         <label>
-                            Alive %
+                            Wall %
                             <input type={"number"} min={0} max={100} name="alivePercent" value={options.alivePercent} onChange={(event) => {
                                 const val = event.target.value;
                                 setOptions(opts => {

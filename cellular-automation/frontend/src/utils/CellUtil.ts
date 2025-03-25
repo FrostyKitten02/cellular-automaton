@@ -8,8 +8,8 @@ export default class CellUtil {
 
     private static readonly CONWAY_COLORS = new Map<string, string>(
         [
-            ["DEAD", "#ffffff"],
-            ["ALIVE", "#000000"],
+            ["EMPTY", "#ffffff"],
+            ["WALL", "#000000"],
         ]
     )
 

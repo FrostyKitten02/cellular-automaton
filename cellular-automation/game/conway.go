@@ -7,8 +7,8 @@ import (
 	"math/rand"
 )
 
-const ALIVE_CELL = "ALIVE"
-const DEAD_CELL = "DEAD"
+const WALL_CELL = "WALL"
+const EMPTY_CELL = "EMPTY"
 
 type NeighbourCounts struct {
 	alive int
@@ -41,23 +41,23 @@ func (c *Conway) NextGeneration() error {
 		for y := 0; y < c.Grid.YSize; y++ {
 			counts := countNeighbours(c.Grid, x, y)
 			cell := utils.GetCellFromGrid(c.Grid, x, y)
-			if *cell.CellType == ALIVE_CELL {
+			if *cell.CellType == WALL_CELL {
 				if ruleApplies(counts, rule.survive) {
-					nextGen[y][x] = utils.CreateCell(ALIVE_CELL, x, y)
+					nextGen[y][x] = utils.CreateCell(WALL_CELL, x, y)
 					continue
 				}
 
-				nextGen[y][x] = utils.CreateCell(DEAD_CELL, x, y)
+				nextGen[y][x] = utils.CreateCell(EMPTY_CELL, x, y)
 				continue
 			}
 
-			if *cell.CellType == DEAD_CELL {
+			if *cell.CellType == EMPTY_CELL {
 				if ruleApplies(counts, rule.born) {
-					nextGen[y][x] = utils.CreateCell(ALIVE_CELL, x, y)
+					nextGen[y][x] = utils.CreateCell(WALL_CELL, x, y)
 					continue
 				}
 
-				nextGen[y][x] = utils.CreateCell(DEAD_CELL, x, y)
+				nextGen[y][x] = utils.CreateCell(EMPTY_CELL, x, y)
 				continue
 			}
 
@@ -72,10 +72,10 @@ func (c *Conway) NextGeneration() error {
 func (c *Conway) Init(xSize int, ySize int) {
 	cells := utils.CreateCellsCustom(xSize, ySize, func(x int, y int) string {
 		if rand.Intn(101) <= c.alivePercent {
-			return ALIVE_CELL
+			return WALL_CELL
 		}
 
-		return DEAD_CELL
+		return EMPTY_CELL
 	})
 
 	c.Grid.XSize = xSize
@@ -106,11 +106,11 @@ func countNeighbours(grid model.Grid, cellX int, cellY int) NeighbourCounts {
 			continue
 		}
 
-		if *cell.CellType == ALIVE_CELL {
+		if *cell.CellType == WALL_CELL {
 			res.alive++
 		}
 
-		if *cell.CellType == DEAD_CELL {
+		if *cell.CellType == EMPTY_CELL {
 			res.dead++
 		}
 	}
