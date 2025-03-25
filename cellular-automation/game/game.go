@@ -25,6 +25,7 @@ type SandboxGame struct {
 	genArgs          GenerationArgs
 	elementsProvider model.ElementProvider
 	generationNum    int
+	cavePregen       bool
 }
 
 type ConwayRule struct {
@@ -114,7 +115,12 @@ func (c *SandboxGame) NextGeneration() error {
 
 func (c *SandboxGame) Init(xSize int, ySize int) {
 	cells := utils.CreateCellsCustom(xSize, ySize, func(x int, y int) string {
-		if rand.Intn(101) <= c.genArgs.alivePercent {
+		//only generate walls if cave was not pre-generated
+		if c.cavePregen && *utils.GetCellFromGrid(c.Grid, x, y).CellType == model.WallCell.String() {
+			return model.WallCell.String()
+		}
+
+		if !c.cavePregen && rand.Intn(101) <= c.genArgs.alivePercent {
 			return model.WallCell.String()
 		}
 
@@ -186,12 +192,24 @@ func NewConway(rule string, alivePercent int) *SandboxGame {
 	}
 }
 
-// TODO generate cave first and then generate other elements
-func NewSandbox(rule string, alivePercent int) *SandboxGame {
+func NewSandbox(rule string, alivePercent int, pregenCave bool, xSize int, ySize int) (*SandboxGame, error) {
 	parsedRule := parseStringRule(rule)
 
+	var pregen *SandboxGame = nil
+	if pregenCave {
+		pregen = NewConway(rule, alivePercent)
+		pregen.Init(xSize, ySize)
+		//100 generations should be enough
+		for i := 0; i < 100; i++ {
+			err := pregen.NextGeneration()
+			if err != nil {
+				return nil, errors.New("Error in pregen")
+			}
+		}
+	}
+
 	gameElements := &[]model.Element{&elements.Sand, &elements.Wood, &elements.Fire, &elements.DarkSmoke, &elements.WhiteSmoke}
-	return &SandboxGame{
+	game := &SandboxGame{
 		Rule: parsedRule,
 		genArgs: GenerationArgs{
 			alivePercent:    alivePercent,
@@ -199,5 +217,12 @@ func NewSandbox(rule string, alivePercent int) *SandboxGame {
 		},
 		elements:         gameElements,
 		elementsProvider: model.NewElementProvider(*gameElements),
+		cavePregen:       pregenCave,
 	}
+
+	if pregen != nil {
+		game.Grid = pregen.Grid
+	}
+
+	return game, nil
 }

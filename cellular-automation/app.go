@@ -111,7 +111,11 @@ func (a *App) Init(xSize int, ySize int, gameMode string, options map[string]str
 		if err != nil {
 			return nil, err
 		}
-		a.game = game.NewSandbox(conwayCondition, alivePercent)
+		pregenCave := options["pregenCave"] == "true"
+		a.game, err = game.NewSandbox(conwayCondition, alivePercent, pregenCave, xSize, ySize)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	a.game.Init(xSize, ySize)
@@ -127,9 +131,7 @@ func (a *App) EditGrid(grid model.Grid) model.Grid {
 func parseConwayOpts(options map[string]string) (string, int, error) {
 	aliveOption := options["alivePercent"]
 	alivePercent := 0
-	if aliveOption == "" {
-
-	} else {
+	if aliveOption != "" {
 		parseRes, err := strconv.Atoi(aliveOption)
 		if err != nil {
 			return "", 0, errors.New("Invalid value for 'alivePercent': " + options["alivePercent"])

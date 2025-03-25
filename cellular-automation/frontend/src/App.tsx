@@ -117,6 +117,17 @@ function App() {
                                    })
                                }}/>
                     </label>
+                    <label>
+                        Pregen cave
+                        <input type={"checkbox"} checked={options.pregenCave == "true"}
+                            onChange={(event) => {
+                                const val = event.target.checked
+                                setOptions(opts => {
+                                    return {...opts, pregenCave: val.toString()}
+                                })
+                            }}
+                        />
+                    </label>
                 </div>
 
                 <button className="btn" onClick={() => {
