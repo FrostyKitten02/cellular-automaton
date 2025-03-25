@@ -18,12 +18,12 @@ export default class CellUtil {
             ["EMPTY", "#ffffff"],
             ["WALL", "#000000"],
             ["SAND", "#ffff00"],
-            ["WOOD", "#632f02"]
+            ["WOOD", "#964B00"],
+            ["FIRE", "#ff5100"]
         ]
     )
 
     public static getCellColor(cell: model.Cell, gameMode: string): string {
-        console.log("GETTING COLOR FOR: ", cell)
         if (cell.cellType == undefined || cell.cellType == "") {
             return this.ERR_COLOR;
         }

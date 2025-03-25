@@ -10,6 +10,7 @@ const (
 	//CUSTOM CELLS
 	SandCell CellType = "SAND"
 	WoodCell CellType = "WOOD"
+	FireCell CellType = "FIRE"
 )
 
 func (c CellType) String() string {

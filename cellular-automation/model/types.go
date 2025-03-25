@@ -5,11 +5,24 @@ type Game interface {
 	GetGrid() *Grid
 	Init(xSize int, ySize int)
 	EditGrid(Grid)
+	GetElementProvider() ElementProvider
 }
 
 type Element interface {
 	GetCellType() CellType
-	NextGenerationCell(currentGeneration Grid, currentCell Cell) Cell
+	NextGenerationCell(currentGeneration Grid, currentCell Cell, provider ElementProvider) Cell
+	GetProperties() ElementProperties
+}
+
+type ElementProvider interface {
+	GetBurningElements() []Element
+	GetBurningElementsCellTypes() []string
+	IsBurningCellType(cellType string) bool
+}
+
+type ElementProperties struct {
+	Flameable bool //if element burns
+	Burning   bool //if element burns other elements
 }
 
 type Cords interface {

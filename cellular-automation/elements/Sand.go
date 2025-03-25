@@ -7,17 +7,26 @@ import (
 
 var Sand = sand{
 	cellType: model.SandCell,
+	properties: model.ElementProperties{
+		Flameable: false,
+		Burning:   false,
+	},
 }
 
 type sand struct {
-	cellType model.CellType
+	cellType   model.CellType
+	properties model.ElementProperties
+}
+
+func (s *sand) GetProperties() model.ElementProperties {
+	return s.properties
 }
 
 func (s *sand) GetCellType() model.CellType {
 	return s.cellType
 }
 
-func (s *sand) NextGenerationCell(currentGeneration model.Grid, currentCell model.Cell) model.Cell {
+func (s *sand) NextGenerationCell(currentGeneration model.Grid, currentCell model.Cell, provider model.ElementProvider) model.Cell {
 	bottom := utils.GetBottomNeighbour(currentGeneration, currentCell.X, currentCell.Y)
 	if bottom != nil && *bottom.CellType == model.EmptyCell.String() {
 		return utils.CreateCellOnCellLocation(model.SandCell.String(), bottom)

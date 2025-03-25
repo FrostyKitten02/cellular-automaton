@@ -4,6 +4,48 @@ import (
 	"cellular-automation/model"
 )
 
+func AnyBurningNeighbours(currentGeneration model.Grid, currentCell model.Cell, provider model.ElementProvider) bool {
+	x := currentCell.GetX()
+	y := currentCell.GetY()
+
+	left := GetLeftNeighbour(currentGeneration, x, y)
+	if left != nil && provider.IsBurningCellType(*left.CellType) {
+		return true
+	}
+	right := GetRightNeighbour(currentGeneration, x, y)
+	if right != nil && provider.IsBurningCellType(*right.CellType) {
+		return true
+	}
+
+	bottomLeft := GetBottomLeftNeighbour(currentGeneration, x, y)
+	if bottomLeft != nil && provider.IsBurningCellType(*bottomLeft.CellType) {
+		return true
+	}
+	bottom := GetBottomNeighbour(currentGeneration, x, y)
+	if bottom != nil && provider.IsBurningCellType(*bottom.CellType) {
+		return true
+	}
+	bottomRight := GetBottomRightNeighbour(currentGeneration, x, y)
+	if bottomRight != nil && provider.IsBurningCellType(*bottomRight.CellType) {
+		return true
+	}
+
+	topLeft := GetTopLeftNeighbour(currentGeneration, x, y)
+	if topLeft != nil && provider.IsBurningCellType(*topLeft.CellType) {
+		return true
+	}
+	top := GetTopNeighbour(currentGeneration, x, y)
+	if top != nil && provider.IsBurningCellType(*top.CellType) {
+		return true
+	}
+	topRight := GetTopRightNeighbour(currentGeneration, x, y)
+	if topRight != nil && provider.IsBurningCellType(*topRight.CellType) {
+		return true
+	}
+
+	return false
+}
+
 // LEFT AND RIGHT NEIGHBOURS
 func GetLeftNeighbour(grid model.Grid, cellX int, cellY int) *model.Cell {
 	return GetCellFromGrid(grid, cellX-1, cellY)

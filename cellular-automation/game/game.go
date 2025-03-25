@@ -19,15 +19,20 @@ type GenerationArgs struct {
 }
 
 type SandboxGame struct {
-	Grid     model.Grid
-	Rule     ConwayRule
-	elements *[]model.Element
-	genArgs  GenerationArgs
+	Grid             model.Grid
+	Rule             ConwayRule
+	elements         *[]model.Element
+	genArgs          GenerationArgs
+	elementsProvider model.ElementProvider
 }
 
 type ConwayRule struct {
 	born    []int //number of alive neighbours a dead cell needs to be born
 	survive []int //number of alive neighbours an alive cell needs to survive
+}
+
+func (c *SandboxGame) GetElementProvider() model.ElementProvider {
+	return c.elementsProvider
 }
 
 func (c *SandboxGame) EditGrid(grid model.Grid) {
@@ -83,7 +88,7 @@ func (c *SandboxGame) NextGeneration() error {
 				return errors.New("INVALID CELL TYPE GIVEN")
 			}
 
-			newCell := (*element).NextGenerationCell(currentGen, *cell)
+			newCell := (*element).NextGenerationCell(currentGen, *cell, c.elementsProvider)
 			nextGen[newCell.GetY()][newCell.GetX()] = newCell
 
 			//TODO maybe move logic for placing empty cell if cell was moved in internal element logic???
@@ -170,12 +175,15 @@ func NewConway(rule string, alivePercent int) *SandboxGame {
 // TODO generate cave first and then generate other elements
 func NewSandbox(rule string, alivePercent int) *SandboxGame {
 	parsedRule := parseStringRule(rule)
+
+	gameElements := &[]model.Element{&elements.Sand, &elements.Wood, &elements.Fire}
 	return &SandboxGame{
 		Rule: parsedRule,
 		genArgs: GenerationArgs{
 			alivePercent:    alivePercent,
-			elementsPercent: map[string]int{model.SandCell.String(): 10, model.WoodCell.String(): 20},
+			elementsPercent: map[string]int{model.SandCell.String(): 0, model.WoodCell.String(): 0, model.FireCell.String(): 20},
 		},
-		elements: &[]model.Element{&elements.Sand, &elements.Wood},
+		elements:         gameElements,
+		elementsProvider: model.NewElementProvider(*gameElements),
 	}
 }
