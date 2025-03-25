@@ -55,7 +55,7 @@ func (c *SandboxGame) NextGeneration() error {
 
 	gameInfo := c.GetGameInfo()
 	currentGen := c.Grid
-	nextGen := utils.CreateCells(currentGen.XSize, currentGen.YSize)
+	nextGen := utils.CreateCells(currentGen.XSize, currentGen.YSize, gameInfo.GenerationNum)
 	for x := 0; x < currentGen.XSize; x++ {
 		for y := 0; y < currentGen.YSize; y++ {
 			counts := countNeighbours(currentGen, x, y)

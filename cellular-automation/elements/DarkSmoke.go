@@ -6,6 +6,8 @@ import (
 	"math/rand"
 )
 
+const MaxAliveGenerations = 6
+
 var DarkSmoke = darkSmoke{
 	cellType: model.DarkSmoke,
 	properties: model.ElementProperties{
@@ -28,6 +30,10 @@ func (s *darkSmoke) GetCellType() model.CellType {
 }
 
 func (s *darkSmoke) NextGenerationCell(currentGeneration model.Grid, currentCell model.Cell, provider model.ElementProvider, gameInfo model.GameInfo) model.Cell {
+	if gameInfo.GenerationNum-currentCell.BornGeneration > MaxAliveGenerations {
+		return utils.CreateCellOnCellLocation(model.EmptyCell.String(), &currentCell, gameInfo.GenerationNum)
+	}
+
 	possibleMoves := make([]model.Cell, 0)
 	topLeft := utils.GetTopLeftNeighbour(currentGeneration, currentCell.GetX(), currentCell.GetY())
 	if topLeft != nil && *topLeft.CellType == model.EmptyCell.String() {

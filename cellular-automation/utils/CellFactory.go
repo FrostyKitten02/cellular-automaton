@@ -36,16 +36,18 @@ func CreateCellsCustom(xSize int, ySize int, cellType func(x int, y int) string)
 	return cells
 }
 
-func CreateCells(xSize int, ySize int) [][]model.Cell {
+// probably don't need to set generation number here but it doesn't hurt
+func CreateCells(xSize int, ySize int, generationNum int) [][]model.Cell {
 	cells := make([][]model.Cell, ySize)
 	for y := 0; y < ySize; y++ {
 		cells[y] = make([]model.Cell, xSize)
 
 		for x := 0; x < xSize; x++ {
 			cells[y][x] = model.Cell{
-				CellType: nil,
-				X:        x,
-				Y:        y,
+				CellType:       nil,
+				X:              x,
+				Y:              y,
+				BornGeneration: generationNum,
 			}
 		}
 	}

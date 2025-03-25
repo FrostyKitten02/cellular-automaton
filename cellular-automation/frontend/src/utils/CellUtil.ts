@@ -15,11 +15,13 @@ export default class CellUtil {
 
     private static readonly SANDBOX_COLORS = new Map<string, string>(
         [
-            ["EMPTY", "#ffffff"],
+            ["EMPTY", "#0aff00"],
             ["WALL", "#000000"],
             ["SAND", "#ffff00"],
             ["WOOD", "#964B00"],
-            ["FIRE", "#ff5100"]
+            ["FIRE", "#ff5100"],
+            ["DARK_SMOKE", "#494949"],
+            ["WHITE_SMOKE", "#b7b7b7"],
         ]
     )
 
