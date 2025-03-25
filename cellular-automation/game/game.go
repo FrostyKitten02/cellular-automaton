@@ -7,9 +7,6 @@ import (
 	"math/rand"
 )
 
-const WALL_CELL = "WALL"
-const EMPTY_CELL = "EMPTY"
-
 type NeighbourCounts struct {
 	alive int
 	dead  int
@@ -26,38 +23,37 @@ type ConwayRule struct {
 	survive []int //number of alive neighbours an alive cell needs to survive
 }
 
-func (c *Conway) EditGrid(grid model.Grid) {
+func (c *SandboxGame) EditGrid(grid model.Grid) {
 	c.Grid = grid
 }
 
-func (c *Conway) GetGrid() *model.Grid {
+func (c *SandboxGame) GetGrid() *model.Grid {
 	return &c.Grid
 }
 
-func (c *Conway) NextGeneration() error {
-	rule := parseStringRule(c.Rule)
+func (c *SandboxGame) NextGeneration() error {
 	nextGen := utils.CreateCells(c.Grid.XSize, c.Grid.YSize)
 	for x := 0; x < c.Grid.XSize; x++ {
 		for y := 0; y < c.Grid.YSize; y++ {
 			counts := countNeighbours(c.Grid, x, y)
 			cell := utils.GetCellFromGrid(c.Grid, x, y)
-			if *cell.CellType == WALL_CELL {
-				if ruleApplies(counts, rule.survive) {
-					nextGen[y][x] = utils.CreateCell(WALL_CELL, x, y)
+			if *cell.CellType == model.WallCell.String() {
+				if ruleApplies(counts, c.Rule.survive) {
+					nextGen[y][x] = utils.CreateCell(model.WallCell.String(), x, y)
 					continue
 				}
 
-				nextGen[y][x] = utils.CreateCell(EMPTY_CELL, x, y)
+				nextGen[y][x] = utils.CreateCell(model.EmptyCell.String(), x, y)
 				continue
 			}
 
-			if *cell.CellType == EMPTY_CELL {
-				if ruleApplies(counts, rule.born) {
-					nextGen[y][x] = utils.CreateCell(WALL_CELL, x, y)
+			if *cell.CellType == model.EmptyCell.String() {
+				if ruleApplies(counts, c.Rule.born) {
+					nextGen[y][x] = utils.CreateCell(model.WallCell.String(), x, y)
 					continue
 				}
 
-				nextGen[y][x] = utils.CreateCell(EMPTY_CELL, x, y)
+				nextGen[y][x] = utils.CreateCell(model.EmptyCell.String(), x, y)
 				continue
 			}
 
@@ -69,13 +65,13 @@ func (c *Conway) NextGeneration() error {
 	return nil
 }
 
-func (c *Conway) Init(xSize int, ySize int) {
+func (c *SandboxGame) Init(xSize int, ySize int) {
 	cells := utils.CreateCellsCustom(xSize, ySize, func(x int, y int) string {
 		if rand.Intn(101) <= c.alivePercent {
-			return WALL_CELL
+			return model.WallCell.String()
 		}
 
-		return EMPTY_CELL
+		return model.EmptyCell.String()
 	})
 
 	c.Grid.XSize = xSize
@@ -106,11 +102,11 @@ func countNeighbours(grid model.Grid, cellX int, cellY int) NeighbourCounts {
 			continue
 		}
 
-		if *cell.CellType == WALL_CELL {
+		if *cell.CellType == model.WallCell.String() {
 			res.alive++
 		}
 
-		if *cell.CellType == EMPTY_CELL {
+		if *cell.CellType == model.EmptyCell.String() {
 			res.dead++
 		}
 	}
@@ -118,9 +114,18 @@ func countNeighbours(grid model.Grid, cellX int, cellY int) NeighbourCounts {
 	return res
 }
 
-func NewConway(rule string, alivePercent int) *Conway {
-	return &Conway{
-		Rule:         rule,
+func NewConway(rule string, alivePercent int) *SandboxGame {
+	parsedRule := parseStringRule(rule)
+	return &SandboxGame{
+		Rule:         parsedRule,
+		alivePercent: alivePercent,
+	}
+}
+
+func NewSandbox(rule string, alivePercent int) *SandboxGame {
+	parsedRule := parseStringRule(rule)
+	return &SandboxGame{
+		Rule:         parsedRule,
 		alivePercent: alivePercent,
 	}
 }
