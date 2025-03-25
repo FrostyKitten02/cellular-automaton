@@ -110,7 +110,7 @@ func (c *SandboxGame) Init(xSize int, ySize int) {
 		for _, element := range *c.elements {
 			val := c.genArgs.elementsPercent[element.GetCellType().String()]
 			if rand.Intn(101) <= val {
-				return model.SandCell.String()
+				return element.GetCellType().String()
 			}
 		}
 
@@ -167,14 +167,15 @@ func NewConway(rule string, alivePercent int) *SandboxGame {
 	}
 }
 
+// TODO generate cave first and then generate other elements
 func NewSandbox(rule string, alivePercent int) *SandboxGame {
 	parsedRule := parseStringRule(rule)
 	return &SandboxGame{
 		Rule: parsedRule,
 		genArgs: GenerationArgs{
 			alivePercent:    alivePercent,
-			elementsPercent: map[string]int{model.SandCell.String(): 10},
+			elementsPercent: map[string]int{model.SandCell.String(): 10, model.WoodCell.String(): 20},
 		},
-		elements: &[]model.Element{&elements.Sand},
+		elements: &[]model.Element{&elements.Sand, &elements.Wood},
 	}
 }

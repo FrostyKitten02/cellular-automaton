@@ -9,6 +9,7 @@ const (
 	//CONWAY CELLS END
 	//CUSTOM CELLS
 	SandCell CellType = "SAND"
+	WoodCell CellType = "WOOD"
 )
 
 func (c CellType) String() string {

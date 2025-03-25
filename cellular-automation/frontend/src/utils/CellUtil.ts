@@ -13,6 +13,15 @@ export default class CellUtil {
         ]
     )
 
+    private static readonly SANDBOX_COLORS = new Map<string, string>(
+        [
+            ["EMPTY", "#ffffff"],
+            ["WALL", "#000000"],
+            ["SAND", "#ffff00"],
+            ["WOOD", "#632f02"]
+        ]
+    )
+
     public static getCellColor(cell: model.Cell, gameMode: string): string {
         console.log("GETTING COLOR FOR: ", cell)
         if (cell.cellType == undefined || cell.cellType == "") {
@@ -25,7 +34,7 @@ export default class CellUtil {
 
         if (gameMode == "SANDBOX") {
             //TODO seperate handler
-            return this.getConwayCellColor(cell);
+            return this.getSandboxCellColor(cell);
         }
 
         return this.ERR_COLOR
@@ -34,6 +43,16 @@ export default class CellUtil {
 
     private static getConwayCellColor(cell: model.Cell): string {
         const color = this.CONWAY_COLORS.get(cell.cellType!); //cant be undefined at this point!!
+
+        if (color != undefined) {
+            return color;
+        }
+
+        return this.ERR_COLOR;
+    }
+
+    private static getSandboxCellColor(cell: model.Cell): string {
+        const color = this.SANDBOX_COLORS.get(cell.cellType!); //cant be undefined at this point!!
 
         if (color != undefined) {
             return color;
