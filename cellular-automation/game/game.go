@@ -1,6 +1,7 @@
 package game
 
 import (
+	"cellular-automation/elements"
 	"cellular-automation/model"
 	"cellular-automation/utils"
 	"errors"
@@ -12,10 +13,16 @@ type NeighbourCounts struct {
 	dead  int
 }
 
-type Conway struct {
-	Grid         model.Grid
-	Rule         string
-	alivePercent int
+type GenerationArgs struct {
+	alivePercent    int
+	elementsPercent map[string]int //map of cellType and their chance of spawning in empty spaces
+}
+
+type SandboxGame struct {
+	Grid     model.Grid
+	Rule     ConwayRule
+	elements *[]model.Element
+	genArgs  GenerationArgs
 }
 
 type ConwayRule struct {
@@ -32,12 +39,14 @@ func (c *SandboxGame) GetGrid() *model.Grid {
 }
 
 func (c *SandboxGame) NextGeneration() error {
-	nextGen := utils.CreateCells(c.Grid.XSize, c.Grid.YSize)
-	for x := 0; x < c.Grid.XSize; x++ {
-		for y := 0; y < c.Grid.YSize; y++ {
-			counts := countNeighbours(c.Grid, x, y)
-			cell := utils.GetCellFromGrid(c.Grid, x, y)
+	currentGen := c.Grid
+	nextGen := utils.CreateCells(currentGen.XSize, currentGen.YSize)
+	for x := 0; x < currentGen.XSize; x++ {
+		for y := 0; y < currentGen.YSize; y++ {
+			counts := countNeighbours(currentGen, x, y)
+			cell := utils.GetCellFromGrid(currentGen, x, y)
 			if *cell.CellType == model.WallCell.String() {
+				//maybe we will need to check here also if any cell was already created before creating it???
 				if ruleApplies(counts, c.Rule.survive) {
 					nextGen[y][x] = utils.CreateCell(model.WallCell.String(), x, y)
 					continue
@@ -48,6 +57,11 @@ func (c *SandboxGame) NextGeneration() error {
 			}
 
 			if *cell.CellType == model.EmptyCell.String() {
+				//not replacing any blocks if block was already created!
+				if nextGen[y][x].CellType != nil {
+					continue
+				}
+
 				if ruleApplies(counts, c.Rule.born) {
 					nextGen[y][x] = utils.CreateCell(model.WallCell.String(), x, y)
 					continue
@@ -57,7 +71,25 @@ func (c *SandboxGame) NextGeneration() error {
 				continue
 			}
 
-			return errors.New("INVALID CELL TYPE GIVEN")
+			if c.elements == nil {
+				//if we get to here it means we don't have anymore cellTypes to look for so we can throw
+				return errors.New("INVALID CELL TYPE GIVEN")
+			}
+
+			element := utils.FindElementForCellType(c.elements, *cell.CellType)
+
+			//throwing exception if element is nil, this means we don't have that element implemented
+			if element == nil {
+				return errors.New("INVALID CELL TYPE GIVEN")
+			}
+
+			newCell := (*element).NextGenerationCell(currentGen, *cell)
+			nextGen[newCell.GetY()][newCell.GetX()] = newCell
+
+			//TODO maybe move logic for placing empty cell if cell was moved in internal element logic???
+			if newCell.X != x || newCell.Y != y {
+				nextGen[y][x] = utils.CreateCell(model.EmptyCell.String(), x, y)
+			}
 		}
 	}
 
@@ -67,8 +99,19 @@ func (c *SandboxGame) NextGeneration() error {
 
 func (c *SandboxGame) Init(xSize int, ySize int) {
 	cells := utils.CreateCellsCustom(xSize, ySize, func(x int, y int) string {
-		if rand.Intn(101) <= c.alivePercent {
+		if rand.Intn(101) <= c.genArgs.alivePercent {
 			return model.WallCell.String()
+		}
+
+		if c.elements == nil {
+			return model.EmptyCell.String()
+		}
+
+		for _, element := range *c.elements {
+			val := c.genArgs.elementsPercent[element.GetCellType().String()]
+			if rand.Intn(101) <= val {
+				return model.SandCell.String()
+			}
 		}
 
 		return model.EmptyCell.String()
@@ -117,15 +160,21 @@ func countNeighbours(grid model.Grid, cellX int, cellY int) NeighbourCounts {
 func NewConway(rule string, alivePercent int) *SandboxGame {
 	parsedRule := parseStringRule(rule)
 	return &SandboxGame{
-		Rule:         parsedRule,
-		alivePercent: alivePercent,
+		Rule: parsedRule,
+		genArgs: GenerationArgs{
+			alivePercent: alivePercent,
+		},
 	}
 }
 
 func NewSandbox(rule string, alivePercent int) *SandboxGame {
 	parsedRule := parseStringRule(rule)
 	return &SandboxGame{
-		Rule:         parsedRule,
-		alivePercent: alivePercent,
+		Rule: parsedRule,
+		genArgs: GenerationArgs{
+			alivePercent:    alivePercent,
+			elementsPercent: map[string]int{model.SandCell.String(): 10},
+		},
+		elements: &[]model.Element{&elements.Sand},
 	}
 }

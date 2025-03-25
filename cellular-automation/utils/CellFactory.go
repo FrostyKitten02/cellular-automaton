@@ -4,6 +4,10 @@ import (
 	"cellular-automation/model"
 )
 
+func CreateCellOnCellLocation(cellType string, placeHere model.Cords) model.Cell {
+	return CreateCell(cellType, placeHere.GetX(), placeHere.GetY())
+}
+
 func CreateCell(cellType string, x int, y int) model.Cell {
 	return model.Cell{
 		CellType: &cellType,

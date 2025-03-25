@@ -7,10 +7,28 @@ type Game interface {
 	EditGrid(Grid)
 }
 
+type Element interface {
+	GetCellType() CellType
+	NextGenerationCell(currentGeneration Grid, currentCell Cell) Cell
+}
+
+type Cords interface {
+	GetX() int
+	GetY() int
+}
+
 type Cell struct {
 	CellType *string `json:"cellType"`
 	X        int     `json:"x"`
 	Y        int     `json:"y"`
+}
+
+func (c *Cell) GetX() int {
+	return c.X
+}
+
+func (c *Cell) GetY() int {
+	return c.Y
 }
 
 type Grid struct {

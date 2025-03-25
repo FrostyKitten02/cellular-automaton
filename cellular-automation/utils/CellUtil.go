@@ -15,28 +15,28 @@ func GetRightNeighbour(grid model.Grid, cellX int, cellY int) *model.Cell {
 
 // BOTTOM NEIGHBOURS
 func GetBottomLeftNeighbour(grid model.Grid, cellX int, cellY int) *model.Cell {
-	return GetCellFromGrid(grid, cellX-1, cellY-1)
+	return GetCellFromGrid(grid, cellX-1, cellY+1)
 }
 
 func GetBottomNeighbour(grid model.Grid, cellX int, cellY int) *model.Cell {
-	return GetCellFromGrid(grid, cellX, cellY-1)
+	return GetCellFromGrid(grid, cellX, cellY+1)
 }
 
 func GetBottomRightNeighbour(grid model.Grid, cellX int, cellY int) *model.Cell {
-	return GetCellFromGrid(grid, cellX+1, cellY-1)
+	return GetCellFromGrid(grid, cellX+1, cellY+1)
 }
 
 // TOP NEIGHBOURS
 func GetTopLeftNeighbour(grid model.Grid, cellX int, cellY int) *model.Cell {
-	return GetCellFromGrid(grid, cellX-1, cellY+1)
+	return GetCellFromGrid(grid, cellX-1, cellY-1)
 }
 
 func GetTopNeighbour(grid model.Grid, cellX int, cellY int) *model.Cell {
-	return GetCellFromGrid(grid, cellX, cellY+1)
+	return GetCellFromGrid(grid, cellX, cellY-1)
 }
 
 func GetTopRightNeighbour(grid model.Grid, cellX int, cellY int) *model.Cell {
-	return GetCellFromGrid(grid, cellX+1, cellY+1)
+	return GetCellFromGrid(grid, cellX+1, cellY-1)
 }
 
 func GetCellFromGrid(grid model.Grid, x int, y int) *model.Cell {

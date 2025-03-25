@@ -106,6 +106,14 @@ func (a *App) Init(xSize int, ySize int, gameMode string, options map[string]str
 		a.game = game.NewConway(conwayCondition, alivePercent)
 	}
 
+	if gameMode == "SANDBOX" {
+		conwayCondition, alivePercent, err := parseConwayOpts(options)
+		if err != nil {
+			return nil, err
+		}
+		a.game = game.NewSandbox(conwayCondition, alivePercent)
+	}
+
 	a.game.Init(xSize, ySize)
 	return a.game.GetGrid(), nil
 }

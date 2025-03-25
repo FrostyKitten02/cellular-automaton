@@ -14,11 +14,17 @@ export default class CellUtil {
     )
 
     public static getCellColor(cell: model.Cell, gameMode: string): string {
+        console.log("GETTING COLOR FOR: ", cell)
         if (cell.cellType == undefined || cell.cellType == "") {
             return this.ERR_COLOR;
         }
 
         if (gameMode == "CONWAY") {
+            return this.getConwayCellColor(cell);
+        }
+
+        if (gameMode == "SANDBOX") {
+            //TODO seperate handler
             return this.getConwayCellColor(cell);
         }
 

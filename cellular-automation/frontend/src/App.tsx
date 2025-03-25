@@ -19,8 +19,8 @@ function App() {
     const [options, setOptions] = useState<Record<string, string>>({})
 
     useEffect(() => {
-        Init(WIDTH,HEIGHT, gameMode, options).then( res => {
-           setGrid(res);
+        Init(WIDTH, HEIGHT, gameMode, options).then(res => {
+            setGrid(res);
         });
 
         const removeListener = EventsOn("simulation_stream", (newData: model.Grid) => {
@@ -96,28 +96,28 @@ function App() {
                     </select>
                 </label>
 
-                {gameMode != "CONWAY"?null:
-                    <div>
-                        <label>
-                            Condition
-                            <input name="conditions" value={options.conwayCondition}  onChange={(event) => {
-                                const conditionString = event.target.value;
-                                setOptions(opts => {
-                                    return {...opts, conwayCondition: conditionString};
-                                });
-                            }} />
-                        </label>
-                        <label>
-                            Wall %
-                            <input type={"number"} min={0} max={100} name="alivePercent" value={options.alivePercent} onChange={(event) => {
-                                const val = event.target.value;
-                                setOptions(opts => {
-                                    return {...opts, alivePercent: val}
-                                })
-                            }}/>
-                        </label>
-                    </div>
-                }
+
+                <div>
+                    <label>
+                        Condition
+                        <input name="conditions" value={options.conwayCondition} onChange={(event) => {
+                            const conditionString = event.target.value;
+                            setOptions(opts => {
+                                return {...opts, conwayCondition: conditionString};
+                            });
+                        }}/>
+                    </label>
+                    <label>
+                        Wall %
+                        <input type={"number"} min={0} max={100} name="alivePercent" value={options.alivePercent}
+                               onChange={(event) => {
+                                   const val = event.target.value;
+                                   setOptions(opts => {
+                                       return {...opts, alivePercent: val}
+                                   })
+                               }}/>
+                    </label>
+                </div>
 
                 <button className="btn" onClick={() => {
                     optsChange()
@@ -171,7 +171,9 @@ function App() {
             <div className="alert" style={{display: alertMessage != "" ? "block" : "none"}}>
                 <div>
                     <p>{alertMessage}</p>
-                    <button className="btn-sm" onClick={() => {setAlertMessage("")}}>
+                    <button className="btn-sm" onClick={() => {
+                        setAlertMessage("")
+                    }}>
                         Cancel
                     </button>
                 </div>
