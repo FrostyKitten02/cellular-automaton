@@ -155,7 +155,7 @@ function App() {
                         </label>
                         <label>
                             Rule
-                            <input name="conditions" type={"number"} min={0} max={128} value={options.rule} onChange={(event) => {
+                            <input name="conditions" type={"number"} min={0} max={255} value={options.rule} onChange={(event) => {
                                 const rule = event.target.value;
                                 setOptions(opts => {
                                     return {...opts, rule: rule};
