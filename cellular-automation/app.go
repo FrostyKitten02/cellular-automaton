@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"log"
 	"strconv"
 	"time"
 )
@@ -29,6 +30,7 @@ func (a *App) startup(ctx context.Context) {
 }
 
 func (a *App) Step() (*model.Grid, error) {
+	log.Print("Step called")
 	if a.simulationCancelFunc != nil {
 		return nil, errors.New("Simulation in progress")
 	}
@@ -51,6 +53,7 @@ func (a *App) stepInternal() error {
 }
 
 func (a *App) Simulate() error {
+	log.Print("Simulate called")
 	if a.simulationCancelFunc != nil {
 		return errors.New("Simulation already in progress")
 	}
@@ -81,6 +84,7 @@ func (a *App) Simulate() error {
 }
 
 func (a *App) StopSimulation() model.Grid {
+	log.Print("Stop simulation called")
 	if a.simulationCancelFunc != nil {
 		a.simulationCancelFunc()
 		a.simulationCancelFunc = nil
@@ -90,10 +94,12 @@ func (a *App) StopSimulation() model.Grid {
 }
 
 func (a *App) ResetGrid() model.Grid {
+	log.Print("Reset grid called")
 	return model.Grid{}
 }
 
 func (a *App) Init(xSize int, ySize int, gameMode string, options map[string]string) (*model.Grid, error) {
+	log.Print("Init called")
 	if a.simulationCancelFunc != nil {
 		return nil, errors.New("Simulation in progress")
 	}
@@ -124,6 +130,7 @@ func (a *App) Init(xSize int, ySize int, gameMode string, options map[string]str
 
 func (a *App) EditGrid(grid model.Grid) model.Grid {
 	//TODO should validate grid size
+	log.Print("Edit called")
 	a.game.EditGrid(grid)
 	return *a.game.GetGrid()
 }

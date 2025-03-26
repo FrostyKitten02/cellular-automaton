@@ -4,6 +4,7 @@ import {EditGrid, Init, ResetGrid, Simulate, Step, StopSimulation} from "../wail
 import {model} from "../wailsjs/go/models";
 import {useEffect, useState} from "react";
 import {EventsOn} from "../wailsjs/runtime";
+import CellUtil from "./utils/CellUtil";
 
 
 const WIDTH = 85;
@@ -14,6 +15,7 @@ function App() {
     const [canEdit, setCanEdit] = useState<boolean>(true);
     const [gridEdited, setGridEdited] = useState<boolean>(false);
     const [alertMessage, setAlertMessage] = useState<string>("")
+    const [paintCell, setPaintCell] = useState<string>("WALL")
 
     const [gameMode, setGameMode] = useState<string>("CONWAY")
     const [options, setOptions] = useState<Record<string, string>>({})
@@ -54,7 +56,7 @@ function App() {
             if (grid?.Cells == null) {
                 return grid;
             }
-            grid.Cells[row][col].cellType = "WALL";
+            grid.Cells[row][col].cellType = paintCell;
             setGridEdited(true);
             return new model.Grid({...grid})
         })
@@ -86,48 +88,89 @@ function App() {
     return (
         <div className="app-wrapper">
             <div className="app-main">
-                <label>
-                    Gamemode
-                    <select defaultValue={"CONWAY"} onChange={(event) => {
-                        setGameMode(event.target.value);
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        flexDirection: "row",
+                        columnGap: "10px"
+                    }}
+                >
+                    <div style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        columnGap: "10px"
                     }}>
-                        <option value="CONWAY">Conway</option>
-                        <option value="SANDBOX">Sandbox</option>
-                    </select>
-                </label>
-
-
-                <div>
-                    <label>
-                        Condition
-                        <input name="conditions" value={options.conwayCondition} onChange={(event) => {
-                            const conditionString = event.target.value;
-                            setOptions(opts => {
-                                return {...opts, conwayCondition: conditionString};
-                            });
-                        }}/>
-                    </label>
-                    <label>
-                        Wall %
-                        <input type={"number"} min={0} max={100} name="alivePercent" value={options.alivePercent}
-                               onChange={(event) => {
-                                   const val = event.target.value;
-                                   setOptions(opts => {
-                                       return {...opts, alivePercent: val}
-                                   })
-                               }}/>
-                    </label>
-                    <label>
-                        Pregen cave
-                        <input type={"checkbox"} checked={options.pregenCave == "true"}
-                            onChange={(event) => {
-                                const val = event.target.checked
-                                setOptions(opts => {
-                                    return {...opts, pregenCave: val.toString()}
-                                })
+                        <label>
+                            Pain
+                            <select defaultValue={"WALL"} onChange={(event) => {
+                                setPaintCell(event.target.value);
+                            }}>
+                                <option value="WALL">Wall</option>
+                                <option value="EMPTY">Empty</option>
+                                <option value="SAND">Sand</option>
+                                <option value="WOOD">Wood</option>
+                                <option value="FIRE">Fire</option>
+                                <option value="DARK_SMOKE">Dark smoke</option>
+                                <option value="WHITE_SMOKE">White smoke</option>
+                            </select>
+                        </label>
+                        <div
+                            style={{
+                                maxWidth: 10,
+                                minWidth: 10,
+                                maxHeight: 10,
+                                minHeight: 10,
+                                backgroundColor: CellUtil.getCellColor(new model.Cell({cellType: paintCell}), gameMode)
                             }}
                         />
+                    </div>
+
+                    <label>
+                        Gamemode
+                        <select defaultValue={"CONWAY"} onChange={(event) => {
+                            setGameMode(event.target.value);
+                        }}>
+                            <option value="CONWAY">Conway</option>
+                            <option value="SANDBOX">Sandbox</option>
+                        </select>
                     </label>
+
+
+                    <div>
+                        <label>
+                            Condition
+                            <input name="conditions" value={options.conwayCondition} onChange={(event) => {
+                                const conditionString = event.target.value;
+                                setOptions(opts => {
+                                    return {...opts, conwayCondition: conditionString};
+                                });
+                            }}/>
+                        </label>
+                        <label>
+                            Wall %
+                            <input type={"number"} min={0} max={100} name="alivePercent" value={options.alivePercent}
+                                   onChange={(event) => {
+                                       const val = event.target.value;
+                                       setOptions(opts => {
+                                           return {...opts, alivePercent: val}
+                                       })
+                                   }}/>
+                        </label>
+                        <label>
+                            Pregen cave
+                            <input type={"checkbox"} checked={options.pregenCave == "true"}
+                                   onChange={(event) => {
+                                       const val = event.target.checked
+                                       setOptions(opts => {
+                                           return {...opts, pregenCave: val.toString()}
+                                       })
+                                   }}
+                            />
+                        </label>
+                    </div>
                 </div>
 
                 <button className="btn" onClick={() => {
