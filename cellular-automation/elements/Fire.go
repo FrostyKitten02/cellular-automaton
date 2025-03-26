@@ -60,6 +60,7 @@ func (f *fire) NextGenerationCell(currentGeneration model.Grid, currentCell mode
 		//THIS SHOULDN'T HAPPEN
 		same := utils.CreateCellOnCellLocation(f.GetCellType().String(), &currentCell, currentCell.BornGeneration)
 		utils.AppendCellInArr(&same, nil, futureGen)
+		return
 	}
 
 	randIndex := rand.Intn(possibleMovesCount)

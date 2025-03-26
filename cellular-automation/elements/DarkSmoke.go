@@ -3,10 +3,11 @@ package elements
 import (
 	"cellular-automation/model"
 	"cellular-automation/utils"
+	"log"
 	"math/rand"
 )
 
-const MaxAliveGenerations = 6
+const maxAliveGenerations = 6
 
 var DarkSmoke = darkSmoke{
 	cellType: model.DarkSmoke,
@@ -30,7 +31,11 @@ func (s *darkSmoke) GetCellType() model.CellType {
 }
 
 func (s *darkSmoke) NextGenerationCell(currentGeneration model.Grid, currentCell model.Cell, provider model.ElementProvider, gameInfo model.GameInfo, futureGen *[][]model.Cell) {
-	if gameInfo.GenerationNum-currentCell.BornGeneration > MaxAliveGenerations {
+	log.Print("Smoke gen ", currentCell.BornGeneration, " ", gameInfo.GenerationNum)
+	log.Print(currentCell)
+	if gameInfo.GenerationNum-currentCell.BornGeneration >= maxAliveGenerations {
+		emptyCell := utils.CreateCellOnCellLocation(model.EmptyCell.String(), &currentCell, gameInfo.GenerationNum)
+		utils.AppendCellInArr(&emptyCell, nil, futureGen)
 		return
 	}
 
@@ -72,13 +77,13 @@ func (s *darkSmoke) NextGenerationCell(currentGeneration model.Grid, currentCell
 
 		randIndex := rand.Intn(possibleSideMovesCount)
 		prevPosition := utils.CreateCellOnCellLocation(model.EmptyCell.String(), &currentCell, gameInfo.GenerationNum)
-		newPosition := utils.CreateCellOnCellLocation(s.GetCellType().String(), &possibleSideMoves[randIndex], gameInfo.GenerationNum)
+		newPosition := utils.CreateCellOnCellLocation(s.GetCellType().String(), &possibleSideMoves[randIndex], currentCell.BornGeneration)
 		utils.AppendCellInArr(&newPosition, &prevPosition, futureGen)
 		return
 	}
 
 	randIndex := rand.Intn(possibleMovesCount)
 	prevPosition := utils.CreateCellOnCellLocation(model.EmptyCell.String(), &currentCell, gameInfo.GenerationNum)
-	newPosition := utils.CreateCellOnCellLocation(s.GetCellType().String(), &possibleMoves[randIndex], gameInfo.GenerationNum)
+	newPosition := utils.CreateCellOnCellLocation(s.GetCellType().String(), &possibleMoves[randIndex], currentCell.BornGeneration)
 	utils.AppendCellInArr(&newPosition, &prevPosition, futureGen)
 }

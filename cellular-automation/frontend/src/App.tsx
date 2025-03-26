@@ -57,6 +57,7 @@ function App() {
                 return grid;
             }
             grid.Cells[row][col].cellType = paintCell;
+            grid.Cells[row][col].bornGeneration = -1;
             setGridEdited(true);
             return new model.Grid({...grid})
         })

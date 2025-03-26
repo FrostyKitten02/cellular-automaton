@@ -148,44 +148,46 @@ func (w *water) NextGenerationCell(currentGeneration model.Grid, currentCell mod
 		}
 
 		right := utils.GetRightNeighbour(currentGeneration, currentCell.GetX(), currentCell.GetY())
-		rightCellValue := getValue(*right, *futureGen, currentGeneration)
+		if right != nil {
+			rightCellValue := getValue(*right, *futureGen, currentGeneration)
 
-		futRight := utils.GetCellFromGrid(futureGrid, right.GetX(), right.GetY())
-		wentRight := false
-		if (*right.CellType == model.EmptyCell.String() || *right.CellType == model.Water.String()) && (futRight.CellType == nil || *futRight.CellType != model.SandCell.String()) {
-			if oldCellValue < w.flowRate {
-				if rightCellValue >= w.maxCapacity && rightCellValue > oldCellValue {
-					wentRight = false
-				} else if rightCellValue <= oldCellValue {
-					wentRight = true
-					rightCellValue += oldCellValue
-					oldCellValue -= oldCellValue
+			futRight := utils.GetCellFromGrid(futureGrid, right.GetX(), right.GetY())
+			wentRight := false
+			if (*right.CellType == model.EmptyCell.String() || *right.CellType == model.Water.String()) && (futRight.CellType == nil || *futRight.CellType != model.SandCell.String()) {
+				if oldCellValue < w.flowRate {
+					if rightCellValue >= w.maxCapacity && rightCellValue > oldCellValue {
+						wentRight = false
+					} else if rightCellValue <= oldCellValue {
+						wentRight = true
+						rightCellValue += oldCellValue
+						oldCellValue -= oldCellValue
+					}
+				} else {
+					if oldCellValue >= w.maxCapacity && rightCellValue > oldCellValue {
+						wentRight = false
+					} else if rightCellValue <= oldCellValue {
+						wentRight = true
+						rightCellValue += w.flowRate
+						oldCellValue -= w.flowRate
+					}
 				}
-			} else {
-				if oldCellValue >= w.maxCapacity && rightCellValue > oldCellValue {
-					wentRight = false
-				} else if rightCellValue <= oldCellValue {
-					wentRight = true
-					rightCellValue += w.flowRate
-					oldCellValue -= w.flowRate
+
+				if wentRight {
+					newRightCell := utils.CreateCellOnCellLocationWithValue(w.cellType.String(), right, gameInfo.GenerationNum, rightCellValue)
+					log.Print("Water moved right!!")
+					utils.AppendCellInArr(&newRightCell, nil, futureGen)
 				}
 			}
 
-			if wentRight {
-				newRightCell := utils.CreateCellOnCellLocationWithValue(w.cellType.String(), right, gameInfo.GenerationNum, rightCellValue)
-				log.Print("Water moved right!!")
-				utils.AppendCellInArr(&newRightCell, nil, futureGen)
+			if wentRight || wentLeft {
+				log.Println("Updating prev water", oldCellValue)
+				oldCell := utils.CreateCellOnCellLocationWithValue(w.GetCellType().String(), &currentCell, gameInfo.GenerationNum, oldCellValue)
+				if oldCell.Value <= 0 {
+					//changing type to empty if value is 0, when cell gets empty
+					oldCell = utils.CreateCellOnCellLocationWithValue(model.EmptyCell.String(), &currentCell, gameInfo.GenerationNum, oldCellValue)
+				}
+				utils.AppendCellInArr(&oldCell, &oldCell, futureGen)
 			}
-		}
-
-		if wentRight || wentLeft {
-			log.Println("Updating prev water", oldCellValue)
-			oldCell := utils.CreateCellOnCellLocationWithValue(w.GetCellType().String(), &currentCell, gameInfo.GenerationNum, oldCellValue)
-			if oldCell.Value <= 0 {
-				//changing type to empty if value is 0, when cell gets empty
-				oldCell = utils.CreateCellOnCellLocationWithValue(model.EmptyCell.String(), &currentCell, gameInfo.GenerationNum, oldCellValue)
-			}
-			utils.AppendCellInArr(&oldCell, &oldCell, futureGen)
 		}
 	}
 

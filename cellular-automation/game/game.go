@@ -5,6 +5,8 @@ import (
 	"cellular-automation/model"
 	"cellular-automation/utils"
 	"errors"
+	"log"
+	"math/rand"
 )
 
 type NeighbourCounts struct {
@@ -44,7 +46,27 @@ func (c *SandboxGame) GetElementProvider() model.ElementProvider {
 }
 
 func (c *SandboxGame) EditGrid(grid model.Grid) {
-	c.Grid = grid
+	cells := &grid.Cells
+
+	a := 0
+	b := 0
+	for y := 0; y < grid.YSize; y++ {
+		for x := 0; x < grid.XSize; x++ {
+			if (*cells)[y][x].BornGeneration == -1 {
+				log.Print("NEW CELL DETECTED", (*cells)[y][x])
+				(*cells)[y][x].BornGeneration = c.generationNum
+				a = y
+				b = x
+			}
+		}
+	}
+
+	c.Grid = model.Grid{
+		Cells: *cells,
+		XSize: grid.XSize,
+		YSize: grid.YSize,
+	}
+	log.Print(c.Grid.Cells[a][b])
 }
 
 func (c *SandboxGame) GetGrid() *model.Grid {
@@ -101,22 +123,17 @@ func (c *SandboxGame) NextGeneration() error {
 			}
 
 			(*element).NextGenerationCell(currentGen, *cell, c.elementsProvider, gameInfo, &nextGen)
-
-			//anyCellSameSpot := false
-			//for _, newCell := range newCells {
-			//	nextGen[newCell.GetY()][newCell.GetX()] = newCell
-			//
-			//	if newCell.X == x && newCell.Y == y {
-			//		anyCellSameSpot = true
-			//	}
-			//}
-
-			////TODO maybe move logic for placing empty cell if cell was moved in internal element logic???
-			//if !anyCellSameSpot {
-			//	nextGen[y][x] = utils.CreateCell(model.EmptyCell.String(), x, y, gameInfo.GenerationNum, 1)
-			//}
 		}
 	}
+
+	//for x := 0; x < currentGen.XSize; x++ {
+	//	for y := 0; y < currentGen.YSize; y++ {
+	//		if nextGen[y][x].CellType == nil || *nextGen[y][x].CellType == "" {
+	//			emptyCell := model.EmptyCell.String()
+	//			nextGen[y][x].CellType = &emptyCell
+	//		}
+	//	}
+	//}
 
 	c.Grid.Cells = nextGen
 	return nil
@@ -125,28 +142,28 @@ func (c *SandboxGame) NextGeneration() error {
 func (c *SandboxGame) Init(xSize int, ySize int) {
 	cells := utils.CreateCellsCustom(xSize, ySize, func(x int, y int) string {
 		//only generate walls if cave was not pre-generated
-		//if c.cavePregen && *utils.GetCellFromGrid(c.Grid, x, y).CellType == model.WallCell.String() {
-		//	return model.WallCell.String()
-		//}
-		//
-		//if !c.cavePregen && rand.Intn(101) <= c.genArgs.alivePercent {
-		//	return model.WallCell.String()
-		//}
-		//
-		//if c.elements == nil {
-		//	return model.EmptyCell.String()
-		//}
-		//
-		//for _, element := range *c.elements {
-		//	val := c.genArgs.elementsPercent[element.GetCellType().String()]
-		//	if &val == nil {
-		//		continue
-		//	}
-		//
-		//	if rand.Intn(101) <= val {
-		//		return element.GetCellType().String()
-		//	}
-		//}
+		if c.cavePregen && *utils.GetCellFromGrid(c.Grid, x, y).CellType == model.WallCell.String() {
+			return model.WallCell.String()
+		}
+
+		if !c.cavePregen && rand.Intn(101) <= c.genArgs.alivePercent {
+			return model.WallCell.String()
+		}
+
+		if c.elements == nil {
+			return model.EmptyCell.String()
+		}
+
+		for _, element := range *c.elements {
+			val := c.genArgs.elementsPercent[element.GetCellType().String()]
+			if &val == nil {
+				continue
+			}
+
+			if rand.Intn(101) <= val {
+				return element.GetCellType().String()
+			}
+		}
 
 		return model.EmptyCell.String()
 	})
@@ -175,7 +192,7 @@ func countNeighbours(grid model.Grid, cellX int, cellY int) NeighbourCounts {
 		dead:  0,
 	}
 	for _, cell := range neighbours {
-		if cell == nil {
+		if cell == nil || cell.CellType == nil {
 			continue
 		}
 
@@ -231,6 +248,7 @@ func NewSandbox(rule string, alivePercent int, pregenCave bool, xSize int, ySize
 	}
 
 	if pregen != nil {
+		log.Println("Pregen:", pregen)
 		game.Grid = pregen.Grid
 	}
 

@@ -45,7 +45,6 @@ func (a *App) Step() (*model.Grid, error) {
 
 func (a *App) stepInternal() error {
 	err := a.game.NextGeneration()
-	log.Print(a.game.GetGrid())
 	if err != nil {
 		return err
 	}
