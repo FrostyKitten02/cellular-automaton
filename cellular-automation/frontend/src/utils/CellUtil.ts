@@ -36,8 +36,11 @@ export default class CellUtil {
         }
 
         if (gameMode == "SANDBOX") {
-            //TODO seperate handler
             return this.getSandboxCellColor(cell);
+        }
+
+        if (gameMode == "1D") {
+            return this.getConwayCellColor(cell);
         }
 
         return this.ERR_COLOR

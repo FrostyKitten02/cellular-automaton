@@ -62,6 +62,26 @@ func CreateCells(xSize int, ySize int, generationNum int) [][]model.Cell {
 	return cells
 }
 
+func CreateOneDimensionalGrid(xSize int, ySize int) [][]model.Cell {
+	cells := make([][]model.Cell, ySize)
+	for y := 0; y < ySize; y++ {
+		cells[y] = make([]model.Cell, xSize)
+
+		for x := 0; x < xSize; x++ {
+			cellType := model.EmptyCell.String()
+			cells[y][x] = model.Cell{
+				CellType:       &cellType,
+				X:              x,
+				Y:              y,
+				BornGeneration: 0,
+				Value:          0,
+			}
+		}
+	}
+
+	return cells
+}
+
 func CopyCells(grid model.Grid, generationNum int) [][]model.Cell {
 	xSize := grid.XSize
 	ySize := grid.YSize

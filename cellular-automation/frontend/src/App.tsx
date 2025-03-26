@@ -138,6 +138,7 @@ function App() {
                         }}>
                             <option value="CONWAY">Conway</option>
                             <option value="SANDBOX">Sandbox</option>
+                            <option value="1D">1D</option>
                         </select>
                     </label>
 
@@ -149,6 +150,15 @@ function App() {
                                 const conditionString = event.target.value;
                                 setOptions(opts => {
                                     return {...opts, conwayCondition: conditionString};
+                                });
+                            }}/>
+                        </label>
+                        <label>
+                            Rule
+                            <input name="conditions" type={"number"} min={0} max={128} value={options.rule} onChange={(event) => {
+                                const rule = event.target.value;
+                                setOptions(opts => {
+                                    return {...opts, rule: rule};
                                 });
                             }}/>
                         </label>

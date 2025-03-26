@@ -3,6 +3,7 @@ package main
 import (
 	"cellular-automation/game"
 	"cellular-automation/model"
+	"cellular-automation/utils"
 	"context"
 	"errors"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -99,7 +100,7 @@ func (a *App) ResetGrid() model.Grid {
 }
 
 func (a *App) Init(xSize int, ySize int, gameMode string, options map[string]string) (*model.Grid, error) {
-	log.Print("Init called")
+	log.Print("Init called for ", gameMode)
 	if a.simulationCancelFunc != nil {
 		return nil, errors.New("Simulation in progress")
 	}
@@ -122,6 +123,26 @@ func (a *App) Init(xSize int, ySize int, gameMode string, options map[string]str
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	if gameMode == "1D" {
+		ruleStr := options["rule"]
+		rule, err := strconv.Atoi(ruleStr)
+		if err != nil {
+			return nil, err
+		}
+
+		oneDimGame := game.OneDimensional{
+			Grid: model.Grid{
+				Cells: utils.CreateOneDimensionalGrid(xSize, ySize),
+				XSize: xSize,
+				YSize: ySize,
+			},
+			Rule: rule,
+		}
+
+		a.game = &oneDimGame
+		return a.game.GetGrid(), nil
 	}
 
 	a.game.Init(xSize, ySize)
