@@ -126,14 +126,14 @@ func (c *SandboxGame) NextGeneration() error {
 		}
 	}
 
-	//for x := 0; x < currentGen.XSize; x++ {
-	//	for y := 0; y < currentGen.YSize; y++ {
-	//		if nextGen[y][x].CellType == nil || *nextGen[y][x].CellType == "" {
-	//			emptyCell := model.EmptyCell.String()
-	//			nextGen[y][x].CellType = &emptyCell
-	//		}
-	//	}
-	//}
+	for x := 0; x < currentGen.XSize; x++ {
+		for y := 0; y < currentGen.YSize; y++ {
+			if nextGen[y][x].CellType == nil || *nextGen[y][x].CellType == "" {
+				emptyCell := model.EmptyCell.String()
+				nextGen[y][x].CellType = &emptyCell
+			}
+		}
+	}
 
 	c.Grid.Cells = nextGen
 	return nil
