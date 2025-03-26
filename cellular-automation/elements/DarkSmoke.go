@@ -29,9 +29,9 @@ func (s *darkSmoke) GetCellType() model.CellType {
 	return s.cellType
 }
 
-func (s *darkSmoke) NextGenerationCell(currentGeneration model.Grid, currentCell model.Cell, provider model.ElementProvider, gameInfo model.GameInfo) model.Cell {
+func (s *darkSmoke) NextGenerationCell(currentGeneration model.Grid, currentCell model.Cell, provider model.ElementProvider, gameInfo model.GameInfo, futureGen *[][]model.Cell) {
 	if gameInfo.GenerationNum-currentCell.BornGeneration > MaxAliveGenerations {
-		return utils.CreateCellOnCellLocation(model.EmptyCell.String(), &currentCell, gameInfo.GenerationNum)
+		return
 	}
 
 	possibleMoves := make([]model.Cell, 0)
@@ -67,15 +67,18 @@ func (s *darkSmoke) NextGenerationCell(currentGeneration model.Grid, currentCell
 
 		possibleSideMovesCount := len(possibleSideMoves)
 		if possibleSideMovesCount == 0 {
-			return utils.CreateCellOnCellLocation(s.GetCellType().String(), &currentCell, currentCell.BornGeneration)
+			return
 		}
 
 		randIndex := rand.Intn(possibleSideMovesCount)
-		moveTo := possibleSideMoves[randIndex]
-		return utils.CreateCellOnCellLocation(s.GetCellType().String(), &moveTo, currentCell.BornGeneration)
+		prevPosition := utils.CreateCellOnCellLocation(model.EmptyCell.String(), &currentCell, gameInfo.GenerationNum)
+		newPosition := utils.CreateCellOnCellLocation(s.GetCellType().String(), &possibleSideMoves[randIndex], gameInfo.GenerationNum)
+		utils.AppendCellInArr(&newPosition, &prevPosition, futureGen)
+		return
 	}
 
 	randIndex := rand.Intn(possibleMovesCount)
-	moveTo := possibleMoves[randIndex]
-	return utils.CreateCellOnCellLocation(s.GetCellType().String(), &moveTo, currentCell.BornGeneration)
+	prevPosition := utils.CreateCellOnCellLocation(model.EmptyCell.String(), &currentCell, gameInfo.GenerationNum)
+	newPosition := utils.CreateCellOnCellLocation(s.GetCellType().String(), &possibleMoves[randIndex], gameInfo.GenerationNum)
+	utils.AppendCellInArr(&newPosition, &prevPosition, futureGen)
 }

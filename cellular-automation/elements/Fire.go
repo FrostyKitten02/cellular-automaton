@@ -27,15 +27,17 @@ func (f *fire) GetCellType() model.CellType {
 	return f.cellType
 }
 
-func (f *fire) NextGenerationCell(currentGeneration model.Grid, currentCell model.Cell, provider model.ElementProvider, gameInfo model.GameInfo) model.Cell {
+func (f *fire) NextGenerationCell(currentGeneration model.Grid, currentCell model.Cell, provider model.ElementProvider, gameInfo model.GameInfo, futureGen *[][]model.Cell) {
 	bottom := utils.GetBottomNeighbour(currentGeneration, currentCell.GetX(), currentCell.GetY())
 	//replace with flame if hits!!
 	if bottom != nil && *bottom.CellType != model.EmptyCell.String() {
 		if provider.IsFlammableCellType(*bottom.CellType) {
-			return utils.CreateCellOnCellLocation(model.WhiteSmoke.String(), &currentCell, gameInfo.GenerationNum)
+			newLocation := utils.CreateCellOnCellLocation(model.WhiteSmoke.String(), &currentCell, gameInfo.GenerationNum)
+			utils.AppendCellInArr(&newLocation, nil, futureGen)
 		}
 
-		return utils.CreateCellOnCellLocation(model.DarkSmoke.String(), &currentCell, gameInfo.GenerationNum)
+		newLocation := utils.CreateCellOnCellLocation(model.DarkSmoke.String(), &currentCell, gameInfo.GenerationNum)
+		utils.AppendCellInArr(&newLocation, nil, futureGen)
 	}
 
 	possibleMoves := make([]model.Cell, 0)
@@ -56,10 +58,13 @@ func (f *fire) NextGenerationCell(currentGeneration model.Grid, currentCell mode
 	possibleMovesCount := len(possibleMoves)
 	if possibleMovesCount == 0 {
 		//THIS SHOULDN'T HAPPEN
-		return utils.CreateCellOnCellLocation(f.GetCellType().String(), &currentCell, currentCell.BornGeneration)
+		same := utils.CreateCellOnCellLocation(f.GetCellType().String(), &currentCell, currentCell.BornGeneration)
+		utils.AppendCellInArr(&same, nil, futureGen)
 	}
 
 	randIndex := rand.Intn(possibleMovesCount)
 	moveTo := possibleMoves[randIndex]
-	return utils.CreateCellOnCellLocation(f.GetCellType().String(), &moveTo, currentCell.BornGeneration)
+	newLocation := utils.CreateCellOnCellLocation(f.GetCellType().String(), &moveTo, currentCell.BornGeneration)
+	oldLocation := utils.CreateCellOnCellLocation(model.EmptyCell.String(), &currentCell, gameInfo.GenerationNum)
+	utils.AppendCellInArr(&newLocation, &oldLocation, futureGen)
 }

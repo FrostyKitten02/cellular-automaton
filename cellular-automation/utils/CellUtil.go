@@ -4,6 +4,16 @@ import (
 	"cellular-automation/model"
 )
 
+func AppendCellInArr(newCell *model.Cell, oldCell *model.Cell, cells *[][]model.Cell) {
+	if oldCell != nil {
+		(*cells)[oldCell.GetY()][oldCell.GetX()] = *oldCell
+	}
+
+	if newCell != nil {
+		(*cells)[newCell.GetY()][newCell.GetX()] = *newCell
+	}
+}
+
 func AnyBurningNeighbours(currentGeneration model.Grid, currentCell model.Cell, provider model.ElementProvider) bool {
 	x := currentCell.GetX()
 	y := currentCell.GetY()

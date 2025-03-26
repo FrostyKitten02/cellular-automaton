@@ -74,7 +74,8 @@ function App() {
     const saveEditAndCallFunc: <I, O>(i: I, f: (input: I) => Promise<O>) => Promise<O | null> = async <I, O>(i: I, f: (input: I) => Promise<O>) => {
         if (gridEdited) {
             try {
-                await EditGrid(grid)
+                await EditGrid(grid);
+                setGridEdited(false);
             } catch (err) {
                 return null;
             }
@@ -115,6 +116,7 @@ function App() {
                                 <option value="FIRE">Fire</option>
                                 <option value="DARK_SMOKE">Dark smoke</option>
                                 <option value="WHITE_SMOKE">White smoke</option>
+                                <option value="WATER">Water</option>
                             </select>
                         </label>
                         <div

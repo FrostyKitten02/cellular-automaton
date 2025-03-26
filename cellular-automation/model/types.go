@@ -10,12 +10,13 @@ type Game interface {
 
 type Element interface {
 	GetCellType() CellType
-	NextGenerationCell(currentGeneration Grid, currentCell Cell, provider ElementProvider, gameInfo GameInfo) Cell
+	NextGenerationCell(currentGeneration Grid, currentCell Cell, provider ElementProvider, gameInfo GameInfo, futureGen *[][]Cell)
 	GetProperties() ElementProperties
 }
 
 type GameInfo struct {
-	GenerationNum int
+	GenerationNum     int
+	CurrentGeneration Grid
 }
 
 type ElementProvider interface {
@@ -42,6 +43,7 @@ type Cell struct {
 	X              int     `json:"x"`
 	Y              int     `json:"y"`
 	BornGeneration int     `json:"bornGeneration"`
+	Value          float64 `json:"value"`
 }
 
 func (c *Cell) GetX() int {

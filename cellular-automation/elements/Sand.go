@@ -26,21 +26,31 @@ func (s *sand) GetCellType() model.CellType {
 	return s.cellType
 }
 
-func (s *sand) NextGenerationCell(currentGeneration model.Grid, currentCell model.Cell, provider model.ElementProvider, gameInfo model.GameInfo) model.Cell {
+func (s *sand) NextGenerationCell(currentGeneration model.Grid, currentCell model.Cell, provider model.ElementProvider, gameInfo model.GameInfo, futureGen *[][]model.Cell) {
 	bottom := utils.GetBottomNeighbour(currentGeneration, currentCell.X, currentCell.Y)
-	if bottom != nil && *bottom.CellType == model.EmptyCell.String() {
-		return utils.CreateCellOnCellLocation(model.SandCell.String(), bottom, currentCell.BornGeneration)
+	if bottom != nil && (*bottom.CellType == model.EmptyCell.String() || *bottom.CellType == model.Water.String()) {
+		nextLocation := utils.CreateCellOnCellLocation(model.SandCell.String(), bottom, currentCell.BornGeneration)
+		oldLocation := utils.CreateCellOnCellLocationWithValue(*bottom.CellType, &currentCell, gameInfo.GenerationNum, bottom.Value)
+		utils.AppendCellInArr(&nextLocation, &oldLocation, futureGen)
+		return
 	}
 
 	bottomLeft := utils.GetBottomLeftNeighbour(currentGeneration, currentCell.X, currentCell.Y)
-	if bottomLeft != nil && *bottomLeft.CellType == model.EmptyCell.String() {
-		return utils.CreateCellOnCellLocation(model.SandCell.String(), bottomLeft, currentCell.BornGeneration)
+	if bottomLeft != nil && (*bottomLeft.CellType == model.EmptyCell.String() || *bottomLeft.CellType == model.Water.String()) {
+		nextLocation := utils.CreateCellOnCellLocation(model.SandCell.String(), bottomLeft, currentCell.BornGeneration)
+		oldLocation := utils.CreateCellOnCellLocationWithValue(*bottomLeft.CellType, &currentCell, gameInfo.GenerationNum, bottomLeft.Value)
+		utils.AppendCellInArr(&nextLocation, &oldLocation, futureGen)
+		return
 	}
 
 	bottomRight := utils.GetBottomRightNeighbour(currentGeneration, currentCell.X, currentCell.Y)
-	if bottomRight != nil && *bottomRight.CellType == model.EmptyCell.String() {
-		return utils.CreateCellOnCellLocation(model.SandCell.String(), bottomRight, currentCell.BornGeneration)
+	if bottomRight != nil && (*bottomRight.CellType == model.EmptyCell.String() || *bottomRight.CellType == model.Water.String()) {
+		nextLocation := utils.CreateCellOnCellLocation(model.SandCell.String(), bottomRight, currentCell.BornGeneration)
+		oldLocation := utils.CreateCellOnCellLocationWithValue(*bottomRight.CellType, &currentCell, gameInfo.GenerationNum, bottomRight.Value)
+		utils.AppendCellInArr(&nextLocation, &oldLocation, futureGen)
+		return
 	}
 
-	return utils.CreateCellOnCellLocation(model.SandCell.String(), &currentCell, currentCell.BornGeneration)
+	sameLocation := utils.CreateCellOnCellLocation(model.SandCell.String(), &currentCell, currentCell.BornGeneration)
+	utils.AppendCellInArr(&sameLocation, nil, futureGen)
 }

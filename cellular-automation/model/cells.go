@@ -13,6 +13,7 @@ const (
 	FireCell   CellType = "FIRE"
 	DarkSmoke  CellType = "DARK_SMOKE"
 	WhiteSmoke CellType = "WHITE_SMOKE"
+	Water      CellType = "WATER"
 )
 
 func (c CellType) String() string {

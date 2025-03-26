@@ -5,15 +5,20 @@ import (
 )
 
 func CreateCellOnCellLocation(cellType string, placeHere model.Cords, fromGen int) model.Cell {
-	return CreateCell(cellType, placeHere.GetX(), placeHere.GetY(), fromGen)
+	return CreateCell(cellType, placeHere.GetX(), placeHere.GetY(), fromGen, 1)
 }
 
-func CreateCell(cellType string, x int, y int, fromGen int) model.Cell {
+func CreateCellOnCellLocationWithValue(cellType string, placeHere model.Cords, fromGen int, value float64) model.Cell {
+	return CreateCell(cellType, placeHere.GetX(), placeHere.GetY(), fromGen, value)
+}
+
+func CreateCell(cellType string, x int, y int, fromGen int, value float64) model.Cell {
 	return model.Cell{
 		CellType:       &cellType,
 		X:              x,
 		Y:              y,
 		BornGeneration: fromGen,
+		Value:          value,
 	}
 }
 
@@ -29,6 +34,7 @@ func CreateCellsCustom(xSize int, ySize int, cellType func(x int, y int) string)
 				X:              x,
 				Y:              y,
 				BornGeneration: 0,
+				Value:          1,
 			}
 		}
 	}
@@ -48,6 +54,29 @@ func CreateCells(xSize int, ySize int, generationNum int) [][]model.Cell {
 				X:              x,
 				Y:              y,
 				BornGeneration: generationNum,
+				Value:          1,
+			}
+		}
+	}
+
+	return cells
+}
+
+func CopyCells(grid model.Grid, generationNum int) [][]model.Cell {
+	xSize := grid.XSize
+	ySize := grid.YSize
+
+	cells := make([][]model.Cell, ySize)
+	for y := 0; y < ySize; y++ {
+		cells[y] = make([]model.Cell, xSize)
+
+		for x := 0; x < xSize; x++ {
+			cells[y][x] = model.Cell{
+				CellType:       grid.Cells[y][x].CellType,
+				X:              x,
+				Y:              y,
+				BornGeneration: generationNum,
+				Value:          grid.Cells[y][x].Value,
 			}
 		}
 	}
