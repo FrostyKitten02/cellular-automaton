@@ -3,9 +3,11 @@ package main
 import (
 	"cellular-automation/game"
 	"cellular-automation/model"
+	"cellular-automation/utils"
 	"context"
 	"errors"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"log"
 	"strconv"
 	"time"
 )
@@ -29,6 +31,7 @@ func (a *App) startup(ctx context.Context) {
 }
 
 func (a *App) Step() (*model.Grid, error) {
+	log.Print("Step called")
 	if a.simulationCancelFunc != nil {
 		return nil, errors.New("Simulation in progress")
 	}
@@ -51,6 +54,7 @@ func (a *App) stepInternal() error {
 }
 
 func (a *App) Simulate() error {
+	log.Print("Simulate called")
 	if a.simulationCancelFunc != nil {
 		return errors.New("Simulation already in progress")
 	}
@@ -81,6 +85,7 @@ func (a *App) Simulate() error {
 }
 
 func (a *App) StopSimulation() model.Grid {
+	log.Print("Stop simulation called")
 	if a.simulationCancelFunc != nil {
 		a.simulationCancelFunc()
 		a.simulationCancelFunc = nil
@@ -90,10 +95,12 @@ func (a *App) StopSimulation() model.Grid {
 }
 
 func (a *App) ResetGrid() model.Grid {
+	log.Print("Reset grid called")
 	return model.Grid{}
 }
 
 func (a *App) Init(xSize int, ySize int, gameMode string, options map[string]string) (*model.Grid, error) {
+	log.Print("Init called for ", gameMode)
 	if a.simulationCancelFunc != nil {
 		return nil, errors.New("Simulation in progress")
 	}
@@ -106,12 +113,45 @@ func (a *App) Init(xSize int, ySize int, gameMode string, options map[string]str
 		a.game = game.NewConway(conwayCondition, alivePercent)
 	}
 
+	if gameMode == "SANDBOX" {
+		conwayCondition, alivePercent, err := parseConwayOpts(options)
+		if err != nil {
+			return nil, err
+		}
+		pregenCave := options["pregenCave"] == "true"
+		a.game, err = game.NewSandbox(conwayCondition, alivePercent, pregenCave, xSize, ySize)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if gameMode == "1D" {
+		ruleStr := options["rule"]
+		rule, err := strconv.Atoi(ruleStr)
+		if err != nil {
+			return nil, err
+		}
+
+		oneDimGame := game.OneDimensional{
+			Grid: model.Grid{
+				Cells: utils.CreateOneDimensionalGrid(xSize, ySize),
+				XSize: xSize,
+				YSize: ySize,
+			},
+			Rule: rule,
+		}
+
+		a.game = &oneDimGame
+		return a.game.GetGrid(), nil
+	}
+
 	a.game.Init(xSize, ySize)
 	return a.game.GetGrid(), nil
 }
 
 func (a *App) EditGrid(grid model.Grid) model.Grid {
 	//TODO should validate grid size
+	log.Print("Edit called")
 	a.game.EditGrid(grid)
 	return *a.game.GetGrid()
 }
@@ -119,9 +159,7 @@ func (a *App) EditGrid(grid model.Grid) model.Grid {
 func parseConwayOpts(options map[string]string) (string, int, error) {
 	aliveOption := options["alivePercent"]
 	alivePercent := 0
-	if aliveOption == "" {
-
-	} else {
+	if aliveOption != "" {
 		parseRes, err := strconv.Atoi(aliveOption)
 		if err != nil {
 			return "", 0, errors.New("Invalid value for 'alivePercent': " + options["alivePercent"])

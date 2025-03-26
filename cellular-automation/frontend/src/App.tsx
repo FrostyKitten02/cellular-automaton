@@ -4,6 +4,7 @@ import {EditGrid, Init, ResetGrid, Simulate, Step, StopSimulation} from "../wail
 import {model} from "../wailsjs/go/models";
 import {useEffect, useState} from "react";
 import {EventsOn} from "../wailsjs/runtime";
+import CellUtil from "./utils/CellUtil";
 
 
 const WIDTH = 85;
@@ -14,13 +15,14 @@ function App() {
     const [canEdit, setCanEdit] = useState<boolean>(true);
     const [gridEdited, setGridEdited] = useState<boolean>(false);
     const [alertMessage, setAlertMessage] = useState<string>("")
+    const [paintCell, setPaintCell] = useState<string>("WALL")
 
     const [gameMode, setGameMode] = useState<string>("CONWAY")
     const [options, setOptions] = useState<Record<string, string>>({})
 
     useEffect(() => {
-        Init(WIDTH,HEIGHT, gameMode, options).then( res => {
-           setGrid(res);
+        Init(WIDTH, HEIGHT, gameMode, options).then(res => {
+            setGrid(res);
         });
 
         const removeListener = EventsOn("simulation_stream", (newData: model.Grid) => {
@@ -54,8 +56,8 @@ function App() {
             if (grid?.Cells == null) {
                 return grid;
             }
-            grid.Cells[row][col].cellType = "ALIVE";
-            // return {...grid};
+            grid.Cells[row][col].cellType = paintCell;
+            grid.Cells[row][col].bornGeneration = -1;
             setGridEdited(true);
             return new model.Grid({...grid})
         })
@@ -73,7 +75,8 @@ function App() {
     const saveEditAndCallFunc: <I, O>(i: I, f: (input: I) => Promise<O>) => Promise<O | null> = async <I, O>(i: I, f: (input: I) => Promise<O>) => {
         if (gridEdited) {
             try {
-                await EditGrid(grid)
+                await EditGrid(grid);
+                setGridEdited(false);
             } catch (err) {
                 return null;
             }
@@ -87,38 +90,101 @@ function App() {
     return (
         <div className="app-wrapper">
             <div className="app-main">
-                <label>
-                    Gamemode
-                    <select defaultValue={"CONWAY"} onChange={(event) => {
-                        setGameMode(event.target.value);
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        flexDirection: "row",
+                        columnGap: "10px"
+                    }}
+                >
+                    <div style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        columnGap: "10px"
                     }}>
-                        <option value="CONWAY">Conway</option>
-                        <option value="SANDBOX">Sandbox</option>
-                    </select>
-                </label>
+                        <label>
+                            Pain
+                            <select defaultValue={"WALL"} onChange={(event) => {
+                                setPaintCell(event.target.value);
+                            }}>
+                                <option value="WALL">Wall</option>
+                                <option value="EMPTY">Empty</option>
+                                <option value="SAND">Sand</option>
+                                <option value="WOOD">Wood</option>
+                                <option value="FIRE">Fire</option>
+                                <option value="DARK_SMOKE">Dark smoke</option>
+                                <option value="WHITE_SMOKE">White smoke</option>
+                                <option value="WATER">Water</option>
+                            </select>
+                        </label>
+                        <div
+                            style={{
+                                maxWidth: 10,
+                                minWidth: 10,
+                                maxHeight: 10,
+                                minHeight: 10,
+                                backgroundColor: CellUtil.getCellColor(new model.Cell({cellType: paintCell}), gameMode)
+                            }}
+                        />
+                    </div>
 
-                {gameMode != "CONWAY"?null:
+                    <label>
+                        Gamemode
+                        <select defaultValue={"CONWAY"} onChange={(event) => {
+                            setGameMode(event.target.value);
+                        }}>
+                            <option value="CONWAY">Conway</option>
+                            <option value="SANDBOX">Sandbox</option>
+                            <option value="1D">1D</option>
+                        </select>
+                    </label>
+
+
                     <div>
                         <label>
                             Condition
-                            <input name="conditions" value={options.conwayCondition}  onChange={(event) => {
+                            <input name="conditions" value={options.conwayCondition} onChange={(event) => {
                                 const conditionString = event.target.value;
                                 setOptions(opts => {
                                     return {...opts, conwayCondition: conditionString};
                                 });
-                            }} />
-                        </label>
-                        <label>
-                            Alive %
-                            <input type={"number"} min={0} max={100} name="alivePercent" value={options.alivePercent} onChange={(event) => {
-                                const val = event.target.value;
-                                setOptions(opts => {
-                                    return {...opts, alivePercent: val}
-                                })
                             }}/>
                         </label>
+                        <label>
+                            Rule
+                            <input name="conditions" type={"number"} min={0} max={128} value={options.rule} onChange={(event) => {
+                                const rule = event.target.value;
+                                setOptions(opts => {
+                                    return {...opts, rule: rule};
+                                });
+                            }}/>
+                        </label>
+                        <label>
+                            Wall %
+                            <input type={"number"} min={0} max={100} name="alivePercent" value={options.alivePercent}
+                                   onChange={(event) => {
+                                       const val = event.target.value;
+                                       setOptions(opts => {
+                                           return {...opts, alivePercent: val}
+                                       })
+                                   }}/>
+                        </label>
+                        <label>
+                            Pregen cave
+                            <input type={"checkbox"} checked={options.pregenCave == "true"}
+                                   onChange={(event) => {
+                                       const val = event.target.checked
+                                       setOptions(opts => {
+                                           return {...opts, pregenCave: val.toString()}
+                                       })
+                                   }}
+                            />
+                        </label>
                     </div>
-                }
+                </div>
 
                 <button className="btn" onClick={() => {
                     optsChange()
@@ -172,7 +238,9 @@ function App() {
             <div className="alert" style={{display: alertMessage != "" ? "block" : "none"}}>
                 <div>
                     <p>{alertMessage}</p>
-                    <button className="btn-sm" onClick={() => {setAlertMessage("")}}>
+                    <button className="btn-sm" onClick={() => {
+                        setAlertMessage("")
+                    }}>
                         Cancel
                     </button>
                 </div>
