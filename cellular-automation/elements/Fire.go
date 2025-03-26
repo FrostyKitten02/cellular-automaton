@@ -3,6 +3,7 @@ package elements
 import (
 	"cellular-automation/model"
 	"cellular-automation/utils"
+	"log"
 	"math/rand"
 )
 
@@ -30,7 +31,9 @@ func (f *fire) GetCellType() model.CellType {
 func (f *fire) NextGenerationCell(currentGeneration model.Grid, currentCell model.Cell, provider model.ElementProvider, gameInfo model.GameInfo, futureGen *[][]model.Cell) {
 	bottom := utils.GetBottomNeighbour(currentGeneration, currentCell.GetX(), currentCell.GetY())
 	//replace with flame if hits!!
+	log.Println("Fire logic")
 	if bottom != nil && *bottom.CellType != model.EmptyCell.String() {
+		log.Print("Fire converting!")
 		if provider.IsFlammableCellType(*bottom.CellType) {
 			newLocation := utils.CreateCellOnCellLocation(model.WhiteSmoke.String(), &currentCell, gameInfo.GenerationNum)
 			utils.AppendCellInArr(&newLocation, nil, futureGen)
@@ -38,6 +41,7 @@ func (f *fire) NextGenerationCell(currentGeneration model.Grid, currentCell mode
 
 		newLocation := utils.CreateCellOnCellLocation(model.DarkSmoke.String(), &currentCell, gameInfo.GenerationNum)
 		utils.AppendCellInArr(&newLocation, nil, futureGen)
+		return
 	}
 
 	possibleMoves := make([]model.Cell, 0)
